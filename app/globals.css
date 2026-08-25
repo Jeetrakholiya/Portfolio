@@ -1,0 +1,392 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.font-flourish {
+  font-family: var(--font-inspiration), 'Inspiration', 'Georgia', cursive, serif;
+  font-weight: 400;
+}
+
+@layer base {
+  /* ==========================================================================
+     GLOBAL DARK THEME (SYNTAX / DIGITAL DOSSIER SYSTEM)
+     Deep near-black background with crisp warm white typography & acid green accent
+     ========================================================================== */
+  :root {
+    --background: #09090b;
+    --foreground: #f2f2f0;
+    
+    --surface: #101014;
+    --surface-secondary: #16161c;
+    --surface-tertiary: #1f1f27;
+    
+    --border: rgba(255, 255, 255, 0.08);
+    --border-subtle: rgba(255, 255, 255, 0.04);
+    --border-strong: rgba(255, 255, 255, 0.16);
+    
+    --muted: #8a8a84;
+    --muted-foreground: #666660;
+    
+    --accent: #f2f2f0;
+    --accent-foreground: #09090b;
+    --accent-green: #00f59b;
+    --accent-highlight: #00f59b;
+    
+    --selection-bg: #00f59b;
+    --selection-text: #09090b;
+    
+    --focus: #00f59b;
+  }
+
+  [data-theme="dark"],
+  .theme-dark {
+    --background: #09090b;
+    --foreground: #f2f2f0;
+    --surface: #101014;
+    --surface-secondary: #16161c;
+    --surface-tertiary: #1f1f27;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-subtle: rgba(255, 255, 255, 0.04);
+    --border-strong: rgba(255, 255, 255, 0.16);
+    --muted: #8a8a84;
+    --muted-foreground: #666660;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    background-color: var(--background);
+    color: var(--foreground);
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    min-height: 100vh;
+    font-feature-settings: "rlig" 1, "calt" 1, "cv02" 1, "cv03" 1, "cv04" 1, "cv11" 1;
+    overflow-x: hidden;
+  }
+
+  /* Scroll offset for target sections to prevent fixed navbar clipping */
+  section[id] {
+    scroll-margin-top: 5rem;
+  }
+
+  ::selection {
+    background: var(--selection-bg);
+    color: var(--selection-text);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  /* Subtle, non-intrusive scrollbar */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #09090b;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* ==========================================================================
+   FLUID TYPOGRAPHY & SYNTAX TYPE TOKENS (BOLD GROTESQUE + MONO METADATA)
+   ========================================================================== */
+@layer utilities {
+  /* DISPLAY HERO: Massive bold graphic title (Mobile safe) */
+  .type-display-hero {
+    font-size: clamp(2.75rem, 11.5vw, 13.5rem);
+    line-height: 0.86;
+    letter-spacing: -0.045em;
+    font-weight: 900;
+    text-transform: uppercase;
+    word-break: break-word;
+  }
+
+  /* DISPLAY XL: Major section headlines */
+  .type-display-xl {
+    font-size: clamp(2.25rem, 7.5vw, 7.5rem);
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+    font-weight: 800;
+    text-transform: uppercase;
+    word-break: break-word;
+  }
+
+  /* DISPLAY: Confident section focal statements */
+  .type-display {
+    font-size: clamp(1.85rem, 5.2vw, 5rem);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    font-weight: 800;
+    text-transform: uppercase;
+    word-break: break-word;
+  }
+
+  /* H1: Primary project & case study titles */
+  .type-h1 {
+    font-size: clamp(1.5rem, 3.8vw, 3.75rem);
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  /* H2: Secondary project titles */
+  .type-h2 {
+    font-size: clamp(1.25rem, 2.4vw, 2.25rem);
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  /* H3: Subsections */
+  .type-h3 {
+    font-size: clamp(1.05rem, 1.7vw, 1.5rem);
+    line-height: 1.28;
+    letter-spacing: -0.015em;
+    font-weight: 600;
+  }
+
+  /* BODY LARGE: Lead paragraphs */
+  .type-body-lg {
+    font-size: clamp(0.9375rem, 1.15vw, 1.1875rem);
+    line-height: 1.55;
+    letter-spacing: -0.01em;
+    font-weight: 400;
+  }
+
+  /* BODY: Standard body copy */
+  .type-body {
+    font-size: clamp(0.85rem, 0.92vw, 1rem);
+    line-height: 1.6;
+    letter-spacing: -0.005em;
+    font-weight: 400;
+  }
+
+  /* BODY SMALL: Secondary descriptions */
+  .type-body-sm {
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    letter-spacing: 0;
+    font-weight: 400;
+  }
+
+  /* MONO METADATA: Technical labels, project numbers, dates */
+  .type-mono {
+    font-family: var(--font-mono), monospace;
+    font-size: clamp(0.6875rem, 0.8vw, 0.75rem);
+    line-height: 1.35;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Fluid vertical section spacing (Mobile optimized) */
+  .section-padding {
+    padding-top: clamp(3.5rem, 7.5vw, 9.5rem);
+    padding-bottom: clamp(3.5rem, 7.5vw, 9.5rem);
+  }
+
+  .section-padding-sm {
+    padding-top: clamp(2.25rem, 5vw, 5.5rem);
+    padding-bottom: clamp(2.25rem, 5vw, 5.5rem);
+  }
+
+  /* Safe Area Insets for Mobile Notches & Bottom Navigation */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 1rem);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 1rem);
+  }
+
+  .bottom-safe {
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Touch & tap responsiveness */
+@media (pointer: coarse) {
+  a, button, [role="button"], input, select, textarea {
+    touch-action: manipulation;
+  }
+}
+
+/* Prevent iOS Safari 100% zoom-in on input focus by enforcing 16px font size on small screens */
+@media (max-width: 640px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="url"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* ==========================================================================
+   DESKTOP CUSTOM CURSOR HIDING (DISABLED ON TOUCH DEVICES)
+   ========================================================================== */
+@media (hover: hover) and (pointer: fine) {
+  html.has-custom-cursor:not(.admin-route),
+  html.has-custom-cursor:not(.admin-route) body,
+  html.has-custom-cursor:not(.admin-route) a,
+  html.has-custom-cursor:not(.admin-route) button,
+  html.has-custom-cursor:not(.admin-route) [role="button"],
+  html.has-custom-cursor:not(.admin-route) [data-cursor] {
+    cursor: none !important;
+  }
+
+  html.has-custom-cursor input[type="text"],
+  html.has-custom-cursor input[type="email"],
+  html.has-custom-cursor input[type="password"],
+  html.has-custom-cursor input[type="url"],
+  html.has-custom-cursor textarea {
+    cursor: text !important;
+  }
+
+  html.has-custom-cursor select {
+    cursor: pointer !important;
+  }
+}
+
+/* Ensure inputs, select, and buttons always show standard OS cursors */
+input, textarea {
+  cursor: text !important;
+}
+
+button, a, select, [role="button"], label {
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   ACCESSIBILITY & REDUCED MOTION FOUNDATION
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   90'S RETRO CRT TV SCANLINE & SIGNAL VARIANCE EFFECT (CONCENTRATED)
+   ========================================================================== */
+@keyframes scanline-roll {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+@keyframes scanline-fast-roll {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+@keyframes tv-noise-flicker {
+  0%, 100% {
+    opacity: 0.08;
+    transform: translate(0, 0);
+  }
+  15% {
+    opacity: 0.12;
+    transform: translate(-1.5px, 1px);
+  }
+  30% {
+    opacity: 0.06;
+    transform: translate(1px, -1.5px);
+  }
+  45% {
+    opacity: 0.14;
+    transform: translate(-1px, -1px);
+  }
+  60% {
+    opacity: 0.07;
+    transform: translate(1.5px, 1px);
+  }
+  75% {
+    opacity: 0.11;
+    transform: translate(-1px, 0.5px);
+  }
+  90% {
+    opacity: 0.09;
+    transform: translate(0.5px, -1px);
+  }
+}
+
+@keyframes tv-line-jitter {
+  0%, 100% {
+    background-position: 0 0;
+  }
+  33% {
+    background-position: 0 1px;
+  }
+  66% {
+    background-position: 0 -1px;
+  }
+}
+
+@keyframes crt-phosphor-pulse {
+  0%, 100% {
+    opacity: 0.92;
+  }
+  50% {
+    opacity: 0.98;
+  }
+}
+
+.animate-scanline-roll {
+  animation: scanline-roll 5.5s linear infinite;
+}
+
+.animate-scanline-secondary {
+  animation: scanline-fast-roll 9s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-tv-noise {
+  animation: tv-noise-flicker 0.09s steps(3) infinite;
+}
+
+.animate-tv-lines {
+  animation: tv-line-jitter 0.06s steps(3) infinite;
+}
+
+.animate-crt-pulse {
+  animation: crt-phosphor-pulse 3s ease-in-out infinite;
+}

@@ -1,0 +1,671 @@
+{
+  "site": {
+    "name": "Jeet Rakholiya",
+    "creativeName": "J.GAZE_",
+    "title": "Jeet Rakholiya — Full-Stack Developer & Visual Creator",
+    "primaryRole": "Full-Stack Developer",
+    "secondaryRoles": [
+      "AI/ML Enthusiast",
+      "Videographer",
+      "Video Editor",
+      "Visual Storyteller"
+    ],
+    "description": "Personal portfolio of Jeet Rakholiya — Full-Stack Developer building modern digital products and Visual Creator (J.GAZE_) crafting cinematic visual experiences.",
+    "url": "https://jeetrakholiya.dev",
+    "email": "jeetrakholiya02@gmail.com",
+    "github": "https://github.com/Jeetrakholiya",
+    "linkedin": "https://linkedin.com/in/jeet-rakholiya-48a662358",
+    "instagram": "https://www.instagram.com/j.gaze_/",
+    "location": "Gujarat, India",
+    "availability": "Available for work",
+    "heroQuote": "WHETHER IT'S WRITING CODE OR STRUCTURING A VISUAL STORY, I AIM FOR CLARITY, DISCIPLINE AND LONG-TERM IMPACT. I BELIEVE GOOD SYSTEMS ARE BUILT WITH INTENT AND CONSISTENCY.",
+    "heroTimeline": "2022 → 2026",
+    "heroAcademic": "Final-Year B.E. CS & IT",
+    "heroSubtitle": "Full-Stack Developer & Visual Creator (@j.gaze_), based in Gujarat, India",
+    "portraitImage": "/images/img_2166_1787568234145.png"
+  },
+  "projects": [
+    {
+      "id": "learnwise",
+      "slug": "learnwise",
+      "title": "LearnWise",
+      "category": "AI / Machine Learning",
+      "shortDescription": "AI-powered Python learning platform with intelligent tutoring, real-time code review, and adaptive assessment.",
+      "description": "An intelligent learning system engineered to accelerate Python mastery through context-aware AI tutoring, real-time code debugging, adaptive quizzes, and comprehensive student analytics.",
+      "year": "2024",
+      "role": "Full-Stack Architecture & AI Integration",
+      "status": "Active Product Build",
+      "timeline": "2024",
+      "technologies": [
+        "React.js",
+        "FastAPI",
+        "Google Gemini API",
+        "MongoDB Atlas",
+        "Python"
+      ],
+      "image": "/images/projects/learnwise.svg",
+      "thumbnail": "/images/projects/learnwise.svg",
+      "liveUrl": null,
+      "githubUrl": null,
+      "featured": true,
+      "order": 1,
+      "features": [
+        "AI tutoring for interactive Python guidance",
+        "AI code review and intelligent debugging",
+        "Adaptive quizzes dynamically generated per learner level",
+        "Analytics dashboard for performance metrics",
+        "Session and progress tracking across learning modules"
+      ],
+      "caseStudy": {
+        "overview": "LearnWise bridges foundational programming education and modern generative AI assistance, providing immediate feedback loops for learners tackling Python development hurdles.",
+        "problem": "Learning Python independently often leads to syntax roadblocks and conceptual friction without immediate, personalized code review and guided debugging.",
+        "solution": "Engineered an integrated ecosystem pairing a reactive React.js interface with asynchronous FastAPI microservices and Google Gemini API to deliver instantaneous code diagnostics, hints, and dynamic assessments.",
+        "architecture": [
+          "Frontend Layer: React.js interactive editor, student analytics dashboard, and stateful session UI",
+          "Backend Services: FastAPI asynchronous microservice endpoints handling validation and code execution queues",
+          "AI Engine: Google Gemini API integration for contextual code reasoning and personalized hint generation",
+          "Data Store: MongoDB Atlas managing user session states, progress trees, and quiz performance telemetry"
+        ],
+        "keyFeatures": [
+          "Contextual AI Tutoring Engine",
+          "Real-Time AI Code Debugging & Feedback",
+          "Dynamic Adaptive Quizzes",
+          "Comprehensive Analytics Dashboard",
+          "Session & Learning Progress Tracker"
+        ]
+      }
+    },
+    {
+      "id": "pdf-craft",
+      "slug": "pdf-craft",
+      "title": "PDF Craft",
+      "category": "Web Application",
+      "shortDescription": "Modern, streamlined PDF utility suite designed for fast, seamless document manipulation.",
+      "description": "A high-performance web utility built for intuitive PDF processing, conversion, and document workflows.",
+      "year": "2024",
+      "role": "Frontend Engineering & UI Design",
+      "status": "Live on Vercel",
+      "timeline": "2024",
+      "technologies": [
+        "React.js",
+        "Next.js",
+        "TypeScript",
+        "Tailwind CSS"
+      ],
+      "image": "/images/projects/pdf-craft.svg",
+      "thumbnail": "/images/projects/pdf-craft.svg",
+      "liveUrl": "https://pdf-craft-oprs.vercel.app",
+      "githubUrl": null,
+      "featured": true,
+      "order": 2,
+      "features": [
+        "Document manipulation and processing tools",
+        "Client-side performance optimizations",
+        "Clean, accessible user interface",
+        "Instant responsive workflows"
+      ],
+      "caseStudy": {
+        "overview": "PDF Craft is a modern, lightweight web utility designed to solve common document workflows with speed, clean typography, and zero friction.",
+        "problem": "Many existing PDF tools are cluttered with intrusive ads, complex interfaces, or slow server roundtrips for basic document tasks.",
+        "solution": "Constructed a minimal, fast web interface focused on streamlined usability, responsive client-side execution, and clean interaction design.",
+        "architecture": [
+          "Frontend: Next.js and TypeScript for type-safe document component state",
+          "Styling: Tailwind CSS design system with minimal editorial tokens",
+          "Deployment: Production hosting on Vercel with global edge distribution"
+        ],
+        "keyFeatures": [
+          "Streamlined PDF Workflow Utilities",
+          "Client-Side Optimizations",
+          "Accessible, Minimalist Interface",
+          "Zero-Distraction Interaction Model"
+        ]
+      }
+    },
+    {
+      "id": "metro-times",
+      "slug": "metro-times",
+      "title": "Metro Times",
+      "category": "Web Application",
+      "shortDescription": "Editorial digital publication and luxury watch boutique platform with Porter same-day delivery.",
+      "description": "A modern, premium visual and horology commerce platform designed for curated timepieces, Porter same-day express delivery in Surat, and velvet tray in-store reservations.",
+      "year": "2024",
+      "role": "Frontend Engineering & Visual Design",
+      "status": "Live on Vercel",
+      "timeline": "2024",
+      "technologies": [
+        "React.js",
+        "Next.js",
+        "TypeScript",
+        "Tailwind CSS"
+      ],
+      "image": "/images/projects/metro-times.svg",
+      "thumbnail": "/images/projects/metro-times.svg",
+      "liveUrl": "https://metro-times-nu.vercel.app",
+      "githubUrl": null,
+      "featured": true,
+      "order": 3,
+      "features": [
+        "Curated editorial layout and watch vault",
+        "Same-day Porter express delivery integration",
+        "VIP velvet tray in-store pass generator",
+        "Modern typography and luxury visual hierarchy"
+      ],
+      "caseStudy": {
+        "overview": "Metro Times explores high-end editorial web design, blending digital publication aesthetics with modern frontend performance.",
+        "problem": "Digital news and lifestyle platforms often suffer from visual clutter, poor typographic hierarchy, and sluggish mobile rendering.",
+        "solution": "Developed a sophisticated, grid-driven publishing experience with generous whitespace, crisp editorial typography, and fluid responsive layouts.",
+        "architecture": [
+          "Frontend: Next.js App Router for server-rendered editorial content",
+          "Typography: Fluid clamp() type hierarchy for seamless multi-device scaling",
+          "Design System: Tailored Tailwind CSS tokens for editorial contrast and spacing"
+        ],
+        "keyFeatures": [
+          "Curated Editorial Layout Structure",
+          "Responsive Typography & Dynamic Scaling",
+          "Optimized Component Rendering",
+          "Modern Content Presentation"
+        ]
+      }
+    },
+    {
+      "id": "employee-information-portal",
+      "slug": "employee-information-portal",
+      "title": "Employee Information Portal",
+      "category": "Enterprise Software",
+      "shortDescription": "Enterprise management system for streamlined employee records, CRUD operations, and secure data access.",
+      "description": "A robust corporate portal built with C# and .NET with SQL Server database integration, facilitating secure authentication, comprehensive CRUD workflows, and structured reporting.",
+      "year": "2023",
+      "role": "Software Development & Database Integration",
+      "status": "Complete",
+      "timeline": "2023",
+      "technologies": [
+        "C#",
+        ".NET Framework",
+        "ASP.NET",
+        "SQL Server"
+      ],
+      "image": "/images/projects/employee-portal.svg",
+      "thumbnail": "/images/projects/employee-portal.svg",
+      "liveUrl": null,
+      "githubUrl": null,
+      "featured": false,
+      "order": 4,
+      "features": [
+        "Employee record management",
+        "CRUD operations for organizational directory",
+        "Secure login and authentication",
+        "Database integration with SQL Server",
+        "Reporting and data management interface"
+      ],
+      "caseStudy": {
+        "overview": "A centralized enterprise management portal engineered to handle corporate employee records, administrative operations, and secure authentication.",
+        "problem": "Managing employee records across unstructured spreadsheets leads to data inconsistency, permission gaps, and inefficient updating workflows.",
+        "solution": "Built a structured C# / .NET application integrated with a relational SQL Server database to enforce role-based authentication and reliable CRUD capabilities.",
+        "architecture": [
+          "Application Layer: C# and .NET Framework enterprise architecture",
+          "Web Framework: ASP.NET for secure session management and controller routing",
+          "Database Layer: Microsoft SQL Server for relational employee data storage"
+        ],
+        "keyFeatures": [
+          "Employee Directory & Profile Management",
+          "Relational CRUD Data Operations",
+          "Secure Role-Based Authentication",
+          "Reporting & Administrative Interface"
+        ]
+      }
+    },
+    {
+      "id": "ai-tic-tac-toe",
+      "slug": "ai-tic-tac-toe",
+      "title": "AI Tic-Tac-Toe",
+      "category": "AI / Machine Learning",
+      "shortDescription": "Interactive game interface featuring intelligent algorithmic decision-making.",
+      "description": "An interactive implementation of Tic-Tac-Toe powered by algorithmic game-state evaluation for intelligent opponent moves.",
+      "year": "2023",
+      "role": "Algorithm Development & Interactive UI",
+      "status": "Complete",
+      "timeline": "2023",
+      "technologies": [
+        "Python",
+        "JavaScript"
+      ],
+      "image": "/images/projects/ai-tic-tac-toe.svg",
+      "thumbnail": "/images/projects/ai-tic-tac-toe.svg",
+      "liveUrl": null,
+      "githubUrl": null,
+      "featured": false,
+      "order": 5,
+      "features": [
+        "Algorithmic decision making",
+        "Interactive turn-based game loop",
+        "Game state and win/draw evaluation"
+      ],
+      "caseStudy": {
+        "overview": "An algorithmic game exploration implementing intelligent game-state evaluation to compute optimal counter-moves in turn-based play.",
+        "architecture": [
+          "Engine: Python / JavaScript game logic for state evaluation",
+          "Interface: Interactive browser board with responsive turn handling"
+        ],
+        "keyFeatures": [
+          "Algorithmic Game-State Evaluation",
+          "Interactive Turn-Based Logic",
+          "Dynamic Win / Draw Detection"
+        ]
+      }
+    },
+    {
+      "id": "metro-e-mobility",
+      "slug": "metro-e-mobility",
+      "title": "Metro E-Mobility",
+      "category": "Frontend Engineering",
+      "shortDescription": "Responsive multi-page commercial showcase for electric mobility solutions.",
+      "description": "A multi-page responsive web experience built for an EV enterprise, featuring structured sections for company services, insights blog, visual gallery, and direct customer inquiry.",
+      "year": "2023",
+      "role": "Frontend Web Development",
+      "status": "Complete",
+      "timeline": "2023",
+      "technologies": [
+        "HTML",
+        "CSS",
+        "JavaScript"
+      ],
+      "image": "/images/projects/metro-e-mobility.svg",
+      "thumbnail": "/images/projects/metro-e-mobility.svg",
+      "liveUrl": null,
+      "githubUrl": null,
+      "featured": false,
+      "order": 6,
+      "features": [
+        "Home showcase with brand presentation",
+        "Services overview for EV products",
+        "Blog section for industry insights",
+        "Media gallery for vehicle highlights",
+        "Interactive contact and inquiry form"
+      ],
+      "caseStudy": {
+        "overview": "A comprehensive multi-page commercial web project crafted for an EV mobility venture, organizing commercial offerings, media, and customer communication.",
+        "architecture": [
+          "Markup & Styling: Semantic HTML5 and custom modular CSS3",
+          "Interactivity: Vanilla JavaScript for mobile navigation and dynamic gallery controls"
+        ],
+        "keyFeatures": [
+          "Multi-Page Company Showcase (Home, Services, Blog, Gallery, Contact)",
+          "Custom Responsive CSS Architecture",
+          "Interactive Media Gallery"
+        ]
+      }
+    }
+  ],
+  "creative": [
+    {
+      "id": "cinematic-reel-01",
+      "title": "Visual Rhythm & Motion",
+      "category": "Visual Storytelling",
+      "description": "Short-form visual reel combining dynamic speed ramps, sound design synchronization, and deliberate cinematic pacing.",
+      "thumbnail": null,
+      "video": "/videos/img_1225.mp4",
+      "posterImage": null,
+      "year": "2024",
+      "role": [
+        "Videography",
+        "Video Editing",
+        "Color Grading"
+      ],
+      "instagramUrl": "https://www.instagram.com/j.gaze_/",
+      "featured": true,
+      "order": 1,
+      "orientation": "vertical",
+      "tier": "featured"
+    },
+    {
+      "id": "cinematic-landscape-01",
+      "title": "Atmosphere & Framing",
+      "category": "Cinematography",
+      "description": "Widescreen cinematic visual study focused on intentional focal lengths, ambient light capture, and tonal color harmony.",
+      "thumbnail": null,
+      "video": "/videos/img_1935.mov",
+      "posterImage": null,
+      "year": "2024",
+      "role": [
+        "Cinematography",
+        "Direction"
+      ],
+      "instagramUrl": "https://www.instagram.com/j.gaze_/",
+      "featured": true,
+      "order": 2,
+      "orientation": "landscape",
+      "tier": "primary"
+    },
+    {
+      "id": "editorial-cut-01",
+      "title": "Narrative Cadence",
+      "category": "Video Editing",
+      "description": "Precision edit sequencing with custom audio cuts, seamless match transitions, and rhythm-driven story arcs.",
+      "thumbnail": null,
+      "video": "/videos/img_1225.mp4",
+      "posterImage": null,
+      "year": "2023",
+      "role": [
+        "Video Editing",
+        "Color Grading"
+      ],
+      "instagramUrl": "https://www.instagram.com/j.gaze_/",
+      "featured": false,
+      "order": 3,
+      "orientation": "landscape",
+      "tier": "primary"
+    },
+    {
+      "id": "visual-story-02",
+      "title": "Lens & Perspective",
+      "category": "Videography",
+      "description": "Street and architectural visual documentation capturing raw textures, urban geometry, and natural light movement.",
+      "thumbnail": null,
+      "video": "/videos/img_1935.mov",
+      "posterImage": null,
+      "year": "2023",
+      "role": [
+        "Videography",
+        "Direction"
+      ],
+      "instagramUrl": "https://www.instagram.com/j.gaze_/",
+      "featured": false,
+      "order": 4,
+      "orientation": "vertical",
+      "tier": "supporting"
+    },
+    {
+      "id": "color-grading-01",
+      "title": "Color Grading & Tone",
+      "category": "Color Grading",
+      "description": "Exploration of custom LUT curves, density balancing, and cinematic skin tone preservation in high-contrast lighting.",
+      "thumbnail": null,
+      "video": "/videos/img_1225.mp4",
+      "posterImage": null,
+      "year": "2023",
+      "role": [
+        "Color Grading",
+        "Post-Production"
+      ],
+      "instagramUrl": "https://www.instagram.com/j.gaze_/",
+      "featured": false,
+      "order": 5,
+      "orientation": "landscape",
+      "tier": "supporting"
+    }
+  ],
+  "skills": [
+    {
+      "name": "Python",
+      "category": "Programming",
+      "highlight": true
+    },
+    {
+      "name": "Java",
+      "category": "Programming",
+      "highlight": false
+    },
+    {
+      "name": "JavaScript",
+      "category": "Programming",
+      "highlight": true
+    },
+    {
+      "name": "HTML",
+      "category": "Programming",
+      "highlight": false
+    },
+    {
+      "name": "CSS",
+      "category": "Programming",
+      "highlight": false
+    },
+    {
+      "name": "C#",
+      "category": "Programming",
+      "highlight": false
+    },
+    {
+      "name": "React.js",
+      "category": "Frameworks & Libraries",
+      "highlight": true
+    },
+    {
+      "name": "Node.js",
+      "category": "Frameworks & Libraries",
+      "highlight": false
+    },
+    {
+      "name": "Django",
+      "category": "Frameworks & Libraries",
+      "highlight": false
+    },
+    {
+      "name": "FastAPI",
+      "category": "Frameworks & Libraries",
+      "highlight": true
+    },
+    {
+      "name": "ASP.NET",
+      "category": "Frameworks & Libraries",
+      "highlight": false
+    },
+    {
+      "name": ".NET Framework",
+      "category": "Frameworks & Libraries",
+      "highlight": false
+    },
+    {
+      "name": "MongoDB",
+      "category": "Databases",
+      "highlight": true
+    },
+    {
+      "name": "MySQL",
+      "category": "Databases",
+      "highlight": false
+    },
+    {
+      "name": "PostgreSQL",
+      "category": "Databases",
+      "highlight": false
+    },
+    {
+      "name": "SQL Server",
+      "category": "Databases",
+      "highlight": false
+    },
+    {
+      "name": "Git",
+      "category": "Tools",
+      "highlight": true
+    },
+    {
+      "name": "GitHub",
+      "category": "Tools",
+      "highlight": true
+    },
+    {
+      "name": "VS Code",
+      "category": "Tools",
+      "highlight": false
+    },
+    {
+      "name": "Visual Studio",
+      "category": "Tools",
+      "highlight": false
+    },
+    {
+      "name": "Jupyter Notebook",
+      "category": "Tools",
+      "highlight": false
+    },
+    {
+      "name": "pgAdmin",
+      "category": "Tools",
+      "highlight": false
+    },
+    {
+      "name": "Web Scraping",
+      "category": "Other",
+      "highlight": false
+    },
+    {
+      "name": "Google Gemini API",
+      "category": "Other",
+      "highlight": true
+    },
+    {
+      "name": "Windows Forms",
+      "category": "Other",
+      "highlight": false
+    },
+    {
+      "name": "DSA",
+      "category": "Areas of Interest",
+      "highlight": false
+    },
+    {
+      "name": "OOP",
+      "category": "Areas of Interest",
+      "highlight": false
+    },
+    {
+      "name": "SQL",
+      "category": "Areas of Interest",
+      "highlight": false
+    },
+    {
+      "name": "Machine Learning",
+      "category": "Areas of Interest",
+      "highlight": true
+    },
+    {
+      "name": "Full-Stack Development",
+      "category": "Areas of Interest",
+      "highlight": true
+    },
+    {
+      "name": "Videography",
+      "category": "Creative Skills",
+      "highlight": true
+    },
+    {
+      "name": "Video Editing",
+      "category": "Creative Skills",
+      "highlight": true
+    },
+    {
+      "name": "Visual Storytelling",
+      "category": "Creative Skills",
+      "highlight": true
+    }
+  ],
+  "education": [
+    {
+      "id": "be-cs-it",
+      "degree": "Bachelor of Engineering (B.E.)",
+      "field": "Computer Science & Information Technology",
+      "institution": "L.J. Institute of Engineering and Technology",
+      "location": "Ahmedabad, Gujarat",
+      "period": "September 2023 – Present",
+      "status": "Final Year",
+      "highlights": [
+        "Core coursework in Data Structures & Algorithms, Object-Oriented Programming, and Database Management Systems",
+        "Specialized academic focus on Full-Stack Development and Machine Learning applications"
+      ]
+    }
+  ],
+  "certifications": [
+    {
+      "id": "eda-ml",
+      "title": "Exploratory Data Analysis for Machine Learning",
+      "issuer": "Coursera",
+      "issueDate": "2025",
+      "skills": [
+        "Machine Learning",
+        "Data Analysis",
+        "Python"
+      ]
+    },
+    {
+      "id": "inheritance-ds-java",
+      "title": "Inheritance and Data Structures in Java",
+      "issuer": "Coursera",
+      "issueDate": "2024",
+      "skills": [
+        "Java",
+        "Data Structures",
+        "OOP"
+      ]
+    },
+    {
+      "id": "intro-java",
+      "title": "Introduction to Java",
+      "issuer": "Coursera",
+      "issueDate": "2024",
+      "skills": [
+        "Java",
+        "Core Programming"
+      ]
+    },
+    {
+      "id": "intro-html-css-js",
+      "title": "Introduction to HTML, CSS, and JavaScript",
+      "issuer": "Coursera",
+      "issueDate": "2024",
+      "skills": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "Web Development"
+      ]
+    },
+    {
+      "id": "hacknuthon-6",
+      "title": "HackNuThon 6.0 Participation Certificate",
+      "issuer": "Nirma University",
+      "issueDate": "2025",
+      "skills": [
+        "Hackathon",
+        "Problem Solving",
+        "Team Collaboration"
+      ]
+    }
+  ],
+  "templates": {
+    "activeTemplate": "syntax",
+    "syntax": {
+      "name": "Syntax (Terminal)",
+      "badge": "HACKER / CYBER MONOSPACE",
+      "accentColor": "#00f59b",
+      "heroHeadline": "I BUILD SYSTEMS. I FRAME STORIES.",
+      "heroSubtitle": "Full-Stack Developer & Visual Creator (@j.gaze_)",
+      "marqueeText": "REACT 19 • NEXT.JS 14 • FASTAPI • PYTHON • AI INTEGRATION • TAILWIND CSS",
+      "showScanlines": true,
+      "customCursor": true
+    },
+    "spiderTech": {
+      "name": "Spider-Tech",
+      "badge": "SPIDER-MAN UNIVERSE",
+      "suitColor": "#c40c24",
+      "heroTitle": "JEET RAKHOLIYA",
+      "heroTagline": "WHO ARE YOU UNDER THE MASK?",
+      "heroMission": "Every Spider-Man carries something different. Engineering high-speed web architectures, intelligent AI systems, and living digital experiences across the entire web.",
+      "manifesto": "WITH GREAT CODE COMES GREAT COMPUTATION. ANYONE CAN WEAR THE MASK — BUT CRAFTING RESILIENT ARCHITECTURES REQUIRES RELENTLESS MASTERY.",
+      "hangingSpiderman": true,
+      "interactiveWebs": true,
+      "backgroundWebNets": true
+    },
+    "ericCole": {
+      "name": "Eric Cole",
+      "badge": "90s VINTAGE CRT TV & EDITORIAL",
+      "heroTitle": "ERIC COLE",
+      "heroSubtitle": "Editorial Portfolio of Jeet Rakholiya",
+      "videoSrc": "/images/IMG_1935.MOV",
+      "tvChannel": "CH 04 • J.GAZE_ EDITORIAL",
+      "soundEnabled": true,
+      "aboutHeadline": "A Visual Storyteller in Code and Cinematography"
+    }
+  }
+}

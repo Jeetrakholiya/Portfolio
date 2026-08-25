@@ -1,0 +1,232 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" width="1200" height="750">
+  <defs>
+    <linearGradient id="mtBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#040e0c" />
+      <stop offset="50%" stop-color="#081715" />
+      <stop offset="100%" stop-color="#020807" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="50%" stop-color="#eab308" />
+      <stop offset="100%" stop-color="#ca8a04" />
+    </linearGradient>
+    <linearGradient id="porterGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0066f5" />
+      <stop offset="100%" stop-color="#38bdf8" />
+    </linearGradient>
+    <linearGradient id="watchCardBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0e2622" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#081715" stop-opacity="0.95" />
+    </linearGradient>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="1200" height="750" fill="url(#mtBg)" />
+
+  <!-- Subtle Radial Ambient Glow -->
+  <circle cx="600" cy="200" r="450" fill="#0d9488" fill-opacity="0.06" filter="blur(80px)" />
+
+  <!-- Browser Header Bar -->
+  <rect x="0" y="0" width="1200" height="50" fill="#040e0c" stroke="#134e48" stroke-width="0.8" />
+  <circle cx="30" cy="25" r="6" fill="#ef4444" opacity="0.8" />
+  <circle cx="50" cy="25" r="6" fill="#f59e0b" opacity="0.8" />
+  <circle cx="70" cy="25" r="6" fill="#10b981" opacity="0.8" />
+
+  <!-- URL Pill -->
+  <rect x="180" y="10" width="840" height="30" rx="6" fill="#0a2320" stroke="#134e48" stroke-width="0.8" />
+  <text x="210" y="29" fill="#5eead4" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500">
+    🔒 https://metro-times-nu.vercel.app — Luxury Watch Boutique &amp; Porter Delivery Since 1995
+  </text>
+  <rect x="940" y="15" width="70" height="20" rx="4" fill="#0d9488" fill-opacity="0.3" stroke="#2dd4bf" stroke-width="0.8" />
+  <text x="952" y="29" fill="#2dd4bf" font-family="monospace" font-size="10" font-weight="700">LIVE SURAT</text>
+
+  <!-- Top Announcement Strip -->
+  <rect x="0" y="50" width="1200" height="32" fill="#061917" stroke="#134e48" stroke-width="0.5" />
+  <circle cx="75" cy="66" r="3.5" fill="#22c55e" />
+  <text x="88" y="70" fill="#e2e8f0" font-family="-apple-system, sans-serif" font-size="11" font-weight="600">
+    Boutique Open in Surat • Same-Day Porter Delivery Active
+  </text>
+  <rect x="920" y="55" width="220" height="22" rx="11" fill="url(#porterGrad)" fill-opacity="0.2" stroke="#38bdf8" stroke-width="0.8" />
+  <text x="935" y="70" fill="#38bdf8" font-family="-apple-system, sans-serif" font-size="10" font-weight="700">
+    🚚 Partner: Porter Express Surat
+  </text>
+
+  <!-- Main Luxury Navbar -->
+  <g transform="translate(60, 95)">
+    <!-- Logo -->
+    <rect x="0" y="5" width="34" height="34" rx="4" fill="#ca8a04" fill-opacity="0.2" stroke="#eab308" stroke-width="1" />
+    <text x="17" y="28" fill="url(#goldGrad)" font-family="serif" font-size="20" font-weight="900" text-anchor="middle">M</text>
+    
+    <text x="46" y="22" fill="url(#goldGrad)" font-family="serif" font-size="18" font-weight="800" letter-spacing="1.5">
+      METRO TIMES
+    </text>
+    <text x="48" y="34" fill="#94a3b8" font-family="monospace" font-size="8" font-weight="600" letter-spacing="1">
+      SINCE 1995 • SURAT BOUTIQUE
+    </text>
+
+    <!-- Nav Links -->
+    <text x="680" y="26" fill="#f8fafc" font-family="-apple-system, sans-serif" font-size="12" font-weight="600">Home</text>
+    <text x="740" y="26" fill="#94a3b8" font-family="-apple-system, sans-serif" font-size="12" font-weight="500">The Watch Vault</text>
+    <text x="870" y="26" fill="#94a3b8" font-family="-apple-system, sans-serif" font-size="12" font-weight="500">Horology Bench</text>
+
+    <rect x="990" y="8" width="90" height="30" rx="4" fill="url(#goldGrad)" />
+    <text x="1006" y="28" fill="#040e0c" font-family="-apple-system, sans-serif" font-size="11" font-weight="800">
+      VIP Tray 🛍
+    </text>
+  </g>
+
+  <!-- Hero Banner & Concept -->
+  <g transform="translate(60, 160)">
+    <!-- Heritage Tag -->
+    <rect x="0" y="0" width="220" height="26" rx="13" fill="#ca8a04" fill-opacity="0.15" stroke="#eab308" stroke-width="0.8" />
+    <text x="15" y="17" fill="url(#goldGrad)" font-family="-apple-system, sans-serif" font-size="10" font-weight="700" letter-spacing="0.5">
+      👑 Heritage Horology Since 1995
+    </text>
+
+    <rect x="230" y="0" width="240" height="26" rx="13" fill="url(#porterGrad)" fill-opacity="0.2" stroke="#38bdf8" stroke-width="0.8" />
+    <text x="245" y="17" fill="#38bdf8" font-family="-apple-system, sans-serif" font-size="10" font-weight="700">
+      ⚡ Same-Day Delivery via Porter
+    </text>
+
+    <!-- Headline -->
+    <text x="0" y="65" fill="#f8fafc" font-family="serif" font-size="36" font-weight="700" letter-spacing="-0.5">
+      Timeless Horology.
+    </text>
+    <text x="0" y="102" fill="url(#goldGrad)" font-family="serif" font-size="36" font-weight="700" letter-spacing="-0.5">
+      Doorstep or In-Store.
+    </text>
+    <text x="0" y="132" fill="#94a3b8" font-family="-apple-system, sans-serif" font-size="13" font-weight="400">
+      Official retailers for Crony Watches &amp; Discovery Watch Co. Same-day express dispatch in Surat or Velvet Tray boutique reservation.
+    </text>
+  </g>
+
+  <!-- Curated Timepiece Cards Grid (3 Featured Luxury Timepieces) -->
+  <g transform="translate(60, 320)">
+    <!-- Card 1: Crony Phantom Open-Heart -->
+    <g transform="translate(0, 0)">
+      <rect x="0" y="0" width="340" height="340" rx="10" fill="url(#watchCardBg)" stroke="#134e48" stroke-width="1.2" />
+      
+      <!-- Watch Image Frame Placeholder -->
+      <rect x="15" y="15" width="310" height="170" rx="8" fill="#040e0c" stroke="#115e59" stroke-width="0.8" />
+      
+      <!-- Graphic Watch Dial Illustration -->
+      <circle cx="170" cy="100" r="55" fill="#0b1d1a" stroke="#ca8a04" stroke-width="2" />
+      <circle cx="170" cy="100" r="48" fill="#040e0c" stroke="#5eead4" stroke-width="1" stroke-dasharray="2 4" />
+      <!-- Open-Heart Aperture -->
+      <circle cx="155" cy="108" r="14" fill="#134e48" stroke="#eab308" stroke-width="1.5" />
+      <path d="M150 108 h10 M155 103 v10" stroke="#fef08a" stroke-width="1" />
+      <!-- Watch Hands -->
+      <path d="M170 100 L185 85 M170 100 L170 65" stroke="#fef08a" stroke-width="2" stroke-linecap="round" />
+      <circle cx="170" cy="100" r="3" fill="#ca8a04" />
+
+      <rect x="25" y="25" width="100" height="20" rx="4" fill="#061917" stroke="#eab308" stroke-width="0.8" />
+      <text x="32" y="38" fill="url(#goldGrad)" font-family="monospace" font-size="9" font-weight="700">OPEN-HEART</text>
+
+      <!-- Details -->
+      <text x="20" y="215" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="15" font-weight="800" letter-spacing="0.5">
+        CRONY PHANTOM OPEN-HEART
+      </text>
+      <text x="20" y="235" fill="#94a3b8" font-family="-apple-system, sans-serif" font-size="11">
+        Japanese 21-Jewel Caliber • Sapphire Crystal Shield
+      </text>
+      <text x="20" y="265" fill="url(#goldGrad)" font-family="-apple-system, sans-serif" font-size="18" font-weight="800">
+        ₹ 14,800
+      </text>
+
+      <!-- Action Buttons -->
+      <rect x="20" y="285" width="140" height="34" rx="4" fill="url(#porterGrad)" />
+      <text x="45" y="306" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="11" font-weight="700">
+        🚚 Order (Porter)
+      </text>
+
+      <rect x="170" y="285" width="150" height="34" rx="4" fill="#061917" stroke="#ca8a04" stroke-width="1" />
+      <text x="195" y="306" fill="url(#goldGrad)" font-family="-apple-system, sans-serif" font-size="11" font-weight="700">
+        💎 Velvet Tray
+      </text>
+    </g>
+
+    <!-- Card 2: Crony Celestial Skeleton Gold -->
+    <g transform="translate(370, 0)">
+      <rect x="0" y="0" width="340" height="340" rx="10" fill="url(#watchCardBg)" stroke="#ca8a04" stroke-width="1.5" />
+      
+      <rect x="15" y="15" width="310" height="170" rx="8" fill="#040e0c" stroke="#115e59" stroke-width="0.8" />
+      
+      <circle cx="170" cy="100" r="55" fill="#0b1d1a" stroke="#eab308" stroke-width="3" />
+      <!-- Full Skeleton Gearwork Graphics -->
+      <circle cx="170" cy="100" r="42" fill="none" stroke="#ca8a04" stroke-width="1.5" stroke-dasharray="4 2" />
+      <circle cx="160" cy="95" r="18" fill="#134e48" stroke="#fef08a" stroke-width="1.5" />
+      <circle cx="180" cy="110" r="14" fill="#0e2622" stroke="#eab308" stroke-width="1.5" />
+      <path d="M170 100 L195 90 M170 100 L160 65" stroke="#ffffff" stroke-width="2" stroke-linecap="round" />
+      <circle cx="170" cy="100" r="3.5" fill="#ca8a04" />
+
+      <rect x="25" y="25" width="120" height="20" rx="4" fill="#061917" stroke="#eab308" stroke-width="0.8" />
+      <text x="32" y="38" fill="url(#goldGrad)" font-family="monospace" font-size="9" font-weight="700">18K IPG GOLD</text>
+
+      <text x="20" y="215" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="15" font-weight="800" letter-spacing="0.5">
+        CRONY SKELETON GOLD
+      </text>
+      <text x="20" y="235" fill="#94a3b8" font-family="-apple-system, sans-serif" font-size="11">
+        Full Architectural Openwork • Solid IPG Gold Bracelet
+      </text>
+      <text x="20" y="265" fill="url(#goldGrad)" font-family="-apple-system, sans-serif" font-size="18" font-weight="800">
+        ₹ 15,400
+      </text>
+
+      <rect x="20" y="285" width="140" height="34" rx="4" fill="url(#porterGrad)" />
+      <text x="45" y="306" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="11" font-weight="700">
+        🚚 Order (Porter)
+      </text>
+
+      <rect x="170" y="285" width="150" height="34" rx="4" fill="#061917" stroke="#ca8a04" stroke-width="1" />
+      <text x="195" y="306" fill="url(#goldGrad)" font-family="-apple-system, sans-serif" font-size="11" font-weight="700">
+        💎 Velvet Tray
+      </text>
+    </g>
+
+    <!-- Card 3: Crony Royal Sovereign IPG -->
+    <g transform="translate(740, 0)">
+      <rect x="0" y="0" width="340" height="340" rx="10" fill="url(#watchCardBg)" stroke="#134e48" stroke-width="1.2" />
+      
+      <rect x="15" y="15" width="310" height="170" rx="8" fill="#040e0c" stroke="#115e59" stroke-width="0.8" />
+      
+      <circle cx="170" cy="100" r="55" fill="#064e3b" stroke="#eab308" stroke-width="2" />
+      <circle cx="170" cy="100" r="48" fill="#022c22" stroke="#34d399" stroke-width="0.8" />
+      <path d="M170 100 L160 80 M170 100 L190 100" stroke="#fef08a" stroke-width="2" stroke-linecap="round" />
+      <rect x="190" y="94" width="16" height="12" rx="2" fill="#ffffff" />
+      <text x="193" y="103" fill="#000000" font-family="monospace" font-size="8" font-weight="700">28</text>
+      <circle cx="170" cy="100" r="3" fill="#ca8a04" />
+
+      <rect x="25" y="25" width="110" height="20" rx="4" fill="#061917" stroke="#38bdf8" stroke-width="0.8" />
+      <text x="32" y="38" fill="#38bdf8" font-family="monospace" font-size="9" font-weight="700">PORTER READY</text>
+
+      <text x="20" y="215" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="15" font-weight="800" letter-spacing="0.5">
+        CRONY ROYAL SOVEREIGN
+      </text>
+      <text x="20" y="235" fill="#94a3b8" font-family="-apple-system, sans-serif" font-size="11">
+        Japanese Automatic • Emerald Sunburst Dial
+      </text>
+      <text x="20" y="265" fill="url(#goldGrad)" font-family="-apple-system, sans-serif" font-size="18" font-weight="800">
+        ₹ 12,850
+      </text>
+
+      <rect x="20" y="285" width="140" height="34" rx="4" fill="url(#porterGrad)" />
+      <text x="45" y="306" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="11" font-weight="700">
+        🚚 Order (Porter)
+      </text>
+
+      <rect x="170" y="285" width="150" height="34" rx="4" fill="#061917" stroke="#ca8a04" stroke-width="1" />
+      <text x="195" y="306" fill="url(#goldGrad)" font-family="-apple-system, sans-serif" font-size="11" font-weight="700">
+        💎 Velvet Tray
+      </text>
+    </g>
+  </g>
+
+  <!-- Bottom Metric Strip -->
+  <rect x="60" y="680" width="1080" height="45" rx="6" fill="#040e0c" stroke="#134e48" stroke-width="1" />
+  <text x="80" y="708" fill="#94a3b8" font-family="monospace" font-size="11">
+    PORTER INTEGRATION: <tspan fill="#38bdf8">Same-Day Surat Hub</tspan> | LEGACY: <tspan fill="#fef08a">1995–2026</tspan> | CONTACT: <tspan fill="#2dd4bf">+91 63543 10153</tspan>
+  </text>
+  <text x="940" y="708" fill="#5eead4" font-family="monospace" font-size="11" font-weight="700">
+    metro-times-nu.vercel.app ↗
+  </text>
+</svg>

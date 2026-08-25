@@ -1,0 +1,193 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" width="1200" height="750">
+  <defs>
+    <linearGradient id="lwBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0a0f" />
+      <stop offset="50%" stop-color="#0d1117" />
+      <stop offset="100%" stop-color="#05070a" />
+    </linearGradient>
+    <linearGradient id="geminiGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4285F4" />
+      <stop offset="50%" stop-color="#9B72CB" />
+      <stop offset="100%" stop-color="#D96570" />
+    </linearGradient>
+    <linearGradient id="codeBoxBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#161b22" />
+      <stop offset="100%" stop-color="#0d1117" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="750" fill="url(#lwBg)" />
+
+  <!-- Browser Top Bar -->
+  <rect x="0" y="0" width="1200" height="50" fill="#0d1117" stroke="#30363d" stroke-width="0.8" />
+  <circle cx="30" cy="25" r="6" fill="#ef4444" opacity="0.8" />
+  <circle cx="50" cy="25" r="6" fill="#f59e0b" opacity="0.8" />
+  <circle cx="70" cy="25" r="6" fill="#10b981" opacity="0.8" />
+
+  <!-- URL Bar -->
+  <rect x="180" y="10" width="840" height="30" rx="6" fill="#161b22" stroke="#30363d" stroke-width="0.8" />
+  <text x="210" y="29" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12">
+    🔒 https://learnwise.ai — AI Python Learning Platform &amp; Code Reviewer
+  </text>
+  <rect x="910" y="15" width="100" height="20" rx="4" fill="url(#geminiGrad)" fill-opacity="0.2" stroke="#9B72CB" stroke-width="0.8" />
+  <text x="920" y="29" fill="#c084fc" font-family="monospace" font-size="10" font-weight="700">GEMINI API ⚡</text>
+
+  <!-- Top App Navigation -->
+  <g transform="translate(50, 75)">
+    <!-- Logo -->
+    <rect x="0" y="0" width="34" height="34" rx="8" fill="url(#geminiGrad)" />
+    <text x="17" y="23" fill="#ffffff" font-family="monospace" font-size="18" font-weight="900" text-anchor="middle">L</text>
+    <text x="46" y="23" fill="#f0f6fc" font-family="-apple-system, sans-serif" font-size="18" font-weight="800" letter-spacing="-0.5">
+      Learn<tspan fill="#a855f7">Wise</tspan>
+    </text>
+    <rect x="155" y="6" width="115" height="22" rx="11" fill="#21262d" stroke="#30363d" stroke-width="0.8" />
+    <circle cx="166" cy="17" r="3.5" fill="#a855f7" />
+    <text x="176" y="21" fill="#c9d1d9" font-family="monospace" font-size="10" font-weight="600">PYTHON 3.12</text>
+
+    <!-- Student Stats -->
+    <text x="750" y="22" fill="#8b949e" font-family="monospace" font-size="12">
+      PROGRESS: <tspan fill="#3fb950">84%</tspan> | STREAK: <tspan fill="#f0883e">14 DAYS 🔥</tspan>
+    </text>
+    <rect x="970" y="2" width="130" height="32" rx="6" fill="#7c3aed" />
+    <text x="990" y="22" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="12" font-weight="700">Run Engine ▷</text>
+  </g>
+
+  <!-- Main IDE Split Layout -->
+  <!-- Left Side: Interactive Python Code Editor -->
+  <g transform="translate(50, 135)">
+    <rect x="0" y="0" width="670" height="520" rx="8" fill="url(#codeBoxBg)" stroke="#30363d" stroke-width="1" />
+    
+    <!-- Editor Tabs Header -->
+    <rect x="0" y="0" width="670" height="36" rx="8 8 0 0" fill="#0d1117" stroke="#30363d" stroke-width="0.5" />
+    <rect x="10" y="6" width="140" height="24" rx="4" fill="#161b22" stroke="#30363d" stroke-width="0.8" />
+    <text x="25" y="22" fill="#58a6ff" font-family="monospace" font-size="11" font-weight="600">🐍 main_engine.py</text>
+    <rect x="155" y="6" width="130" height="24" rx="4" fill="transparent" />
+    <text x="165" y="22" fill="#8b949e" font-family="monospace" font-size="11">⚙️ test_cases.py</text>
+
+    <!-- Line Numbers & Code -->
+    <g transform="translate(15, 60)" font-family="monospace" font-size="12" line-height="22">
+      <!-- Line 1 -->
+      <text x="0" y="0" fill="#484f58">01</text>
+      <text x="35" y="0" fill="#ff7b72">import</text>
+      <text x="85" y="0" fill="#f0f6fc">fastapi, asyncio</text>
+      
+      <!-- Line 2 -->
+      <text x="0" y="25" fill="#484f58">02</text>
+      <text x="35" y="25" fill="#ff7b72">from</text>
+      <text x="70" y="25" fill="#f0f6fc">google.generativeai</text>
+      <text x="220" y="25" fill="#ff7b72">import</text>
+      <text x="270" y="25" fill="#79c0ff">GenerativeModel</text>
+
+      <!-- Line 3 -->
+      <text x="0" y="50" fill="#484f58">03</text>
+
+      <!-- Line 4 -->
+      <text x="0" y="75" fill="#484f58">04</text>
+      <text x="35" y="75" fill="#7ee787"># AI Adaptive Python Tutoring Engine</text>
+
+      <!-- Line 5 -->
+      <text x="0" y="100" fill="#484f58">05</text>
+      <text x="35" y="100" fill="#ff7b72">class</text>
+      <text x="80" y="100" fill="#ffa657">PythonTutorEngine</text>
+      <text x="210" y="100" fill="#f0f6fc">:</text>
+
+      <!-- Line 6 -->
+      <text x="0" y="125" fill="#484f58">06</text>
+      <text x="55" y="125" fill="#ff7b72">async def</text>
+      <text x="135" y="125" fill="#d2a8ff">diagnose_code</text>
+      <text x="235" y="125" fill="#f0f6fc">(self, user_code: str):</text>
+
+      <!-- Line 7 -->
+      <text x="0" y="150" fill="#484f58">07</text>
+      <text x="75" y="150" fill="#f0f6fc">analysis =</text>
+      <text x="165" y="150" fill="#ff7b72">await</text>
+      <text x="215" y="150" fill="#79c0ff">gemini.evaluate</text>
+      <text x="330" y="150" fill="#f0f6fc">(user_code)</text>
+
+      <!-- Line 8 -->
+      <text x="0" y="175" fill="#484f58">08</text>
+      <text x="75" y="175" fill="#ff7b72">if</text>
+      <text x="95" y="175" fill="#f0f6fc">analysis.has_syntax_block:</text>
+
+      <!-- Line 9 (Active highlighted line) -->
+      <rect x="-10" y="185" width="640" height="24" fill="#a855f7" fill-opacity="0.15" rx="2" />
+      <text x="0" y="200" fill="#c084fc" font-weight="700">09</text>
+      <text x="95" y="200" fill="#ff7b72">return</text>
+      <text x="150" y="200" fill="#a5d6ff">self.generate_hint</text>
+      <text x="290" y="200" fill="#f0f6fc">(analysis.context)</text>
+
+      <!-- Line 10 -->
+      <text x="0" y="225" fill="#484f58">10</text>
+      <text x="75" y="225" fill="#ff7b72">return</text>
+      <text x="130" y="225" fill="#f0f6fc">analysis.generate_adaptive_quiz()</text>
+    </g>
+
+    <!-- Terminal Output Sub-window -->
+    <rect x="15" y="360" width="640" height="140" rx="6" fill="#0d1117" stroke="#21262d" stroke-width="1" />
+    <text x="30" y="385" fill="#7ee787" font-family="monospace" font-size="11" font-weight="600">✓ Fast execution test passed (32ms)</text>
+    <text x="30" y="410" fill="#8b949e" font-family="monospace" font-size="11">AI Diagnostics: 0 syntax errors, 1 optimization hint ready</text>
+    <text x="30" y="435" fill="#58a6ff" font-family="monospace" font-size="11">MongoDB Atlas: Synced student progress to cloud</text>
+    <text x="30" y="465" fill="#3fb950" font-family="monospace" font-size="11">Ready for next module: Dynamic Programming &amp; Trees</text>
+  </g>
+
+  <!-- Right Side: Google Gemini AI Reasoning & Feedback Card -->
+  <g transform="translate(740, 135)">
+    <rect x="0" y="0" width="410" height="520" rx="8" fill="url(#codeBoxBg)" stroke="#9B72CB" stroke-width="1.2" />
+    
+    <!-- AI Header -->
+    <rect x="0" y="0" width="410" height="42" rx="8 8 0 0" fill="#161b22" stroke="#30363d" stroke-width="0.5" />
+    <circle cx="25" cy="21" r="5" fill="#a855f7" />
+    <text x="38" y="25" fill="#f0f6fc" font-family="-apple-system, sans-serif" font-size="13" font-weight="700">
+      Gemini AI Intelligent Tutor
+    </text>
+    <rect x="300" y="10" width="95" height="22" rx="4" fill="url(#geminiGrad)" />
+    <text x="315" y="25" fill="#ffffff" font-family="monospace" font-size="10" font-weight="700">ACTIVE ⚡</text>
+
+    <!-- AI Diagnostic Message 1 -->
+    <g transform="translate(20, 60)">
+      <rect x="0" y="0" width="370" height="100" rx="6" fill="#21262d" stroke="#30363d" stroke-width="0.8" />
+      <text x="15" y="24" fill="#a855f7" font-family="monospace" font-size="11" font-weight="700">💡 REAL-TIME CODE HINT (LINE 09)</text>
+      <text x="15" y="48" fill="#e6edf3" font-family="-apple-system, sans-serif" font-size="12">
+        Great implementation of the asynchronous queue! To optimize recursion depth, consider memoizing state.
+      </text>
+      <text x="15" y="80" fill="#3fb950" font-family="monospace" font-size="10">Complexity: O(n log n) [PASSED]</text>
+    </g>
+
+    <!-- AI Dynamic Adaptive Quiz Generated -->
+    <g transform="translate(20, 180)">
+      <rect x="0" y="0" width="370" height="180" rx="6" fill="#161b22" stroke="#484f58" stroke-width="0.8" />
+      <text x="15" y="24" fill="#f0883e" font-family="monospace" font-size="11" font-weight="700">🎯 ADAPTIVE QUIZ CHALLENGE</text>
+      <text x="15" y="48" fill="#e6edf3" font-family="-apple-system, sans-serif" font-size="12" font-weight="600">
+        What is the primary benefit of FastAPI's async def vs standard def?
+      </text>
+      
+      <!-- Option A -->
+      <rect x="15" y="70" width="340" height="28" rx="4" fill="#21262d" />
+      <text x="25" y="88" fill="#8b949e" font-family="-apple-system, sans-serif" font-size="11">A. Non-blocking I/O execution loop</text>
+
+      <!-- Option B (Correct) -->
+      <rect x="15" y="105" width="340" height="28" rx="4" fill="#238636" fill-opacity="0.3" stroke="#3fb950" stroke-width="1" />
+      <text x="25" y="123" fill="#7ee787" font-family="-apple-system, sans-serif" font-size="11" font-weight="600">B. Handles concurrent API tasks without thread starvation ✓</text>
+
+      <!-- Option C -->
+      <rect x="15" y="140" width="340" height="28" rx="4" fill="#21262d" />
+      <text x="25" y="158" fill="#8b949e" font-family="-apple-system, sans-serif" font-size="11">C. Automatically compiles Python to C++</text>
+    </g>
+
+    <!-- Bottom Action -->
+    <rect x="20" y="450" width="370" height="42" rx="6" fill="url(#geminiGrad)" />
+    <text x="205" y="476" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="13" font-weight="700" text-anchor="middle">
+      Submit Solution &amp; Continue →
+    </text>
+  </g>
+
+  <!-- Bottom Global Metric Strip -->
+  <rect x="50" y="675" width="1100" height="45" rx="6" fill="#0d1117" stroke="#30363d" stroke-width="1" />
+  <text x="70" y="703" fill="#8b949e" font-family="monospace" font-size="11">
+    FRAMEWORK: <tspan fill="#58a6ff">React.js</tspan> | BACKEND: <tspan fill="#7ee787">FastAPI Microservices</tspan> | AI: <tspan fill="#d2a8ff">Google Gemini API</tspan> | DB: <tspan fill="#3fb950">MongoDB Atlas</tspan>
+  </text>
+  <text x="960" y="703" fill="#a855f7" font-family="monospace" font-size="11" font-weight="700">
+    LEARNWISE AI ARCHITECTURE ↗
+  </text>
+</svg>
