@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
+import { playThwipSound } from './spider-sound-effects';
 
 interface CursorParticle {
   x: number;
@@ -136,6 +137,8 @@ export const SpiderWebCanvas: React.FC = () => {
     const handleClick = (e: MouseEvent) => {
       const clickX = e.clientX;
       const clickY = e.clientY;
+
+      playThwipSound();
 
       // 1. Trigger "THWIP!" pure white particle burst at click origin
       const burstCount = 24;

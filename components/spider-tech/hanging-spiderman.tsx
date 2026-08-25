@@ -64,15 +64,19 @@ export const HangingSpiderman: React.FC = () => {
 
   // Pointer drag handlers for full 360° omnidirectional stretch & release
   const handlePointerDown = (e: React.PointerEvent) => {
+    e.preventDefault();
     setIsDragging(true);
     startDragX.current = e.clientX - dragX.get();
     startDragY.current = e.clientY - dragY.get();
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    try {
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    } catch {}
     playWebStretchSound(0.2);
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging) return;
+    e.preventDefault();
     // Allow dragging anywhere across screen: left, right, up, down, diagonals
     const newX = Math.max(-600, Math.min(600, e.clientX - startDragX.current));
     const newY = Math.max(-45, Math.min(650, e.clientY - startDragY.current));
@@ -117,7 +121,8 @@ export const HangingSpiderman: React.FC = () => {
     }
   };
 
-  const handleSpideyClick = () => {
+  const handleSpideyClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     if (isDragging) return;
     playThwipSound();
     const quotes = [
@@ -133,7 +138,7 @@ export const HangingSpiderman: React.FC = () => {
   };
 
   return (
-    <div className="fixed top-0 right-3 sm:right-24 lg:right-36 z-40 pointer-events-none select-none">
+    <div className="fixed top-0 right-3 sm:right-24 lg:right-36 z-40 pointer-events-none select-none [-webkit-user-select:none] [-webkit-user-drag:none]">
       
       {/* Top Navbar Anchor Web Node */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-white border border-black shadow-[0_0_12px_#ffffff] z-30 pointer-events-none" />
@@ -147,7 +152,9 @@ export const HangingSpiderman: React.FC = () => {
           transformOrigin: 'top center',
           rotate: webAngle,
         }}
-        className="relative flex flex-col items-center pointer-events-auto cursor-grab active:cursor-grabbing touch-none"
+        draggable={false}
+        onDragStart={(e) => e.preventDefault()}
+        className="relative flex flex-col items-center pointer-events-auto cursor-grab active:cursor-grabbing touch-none select-none [-webkit-user-drag:none]"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -161,11 +168,12 @@ export const HangingSpiderman: React.FC = () => {
         */}
         <motion.div
           style={{ height: webHeight }}
-          className="w-2.5 sm:w-3.5 relative overflow-hidden bg-repeat-y bg-top bg-contain pointer-events-none z-10"
+          draggable={false}
+          className="w-2.5 sm:w-3.5 relative overflow-hidden bg-repeat-y bg-top bg-contain pointer-events-none z-10 select-none [-webkit-user-drag:none]"
         >
           {/* Repeating braided web texture */}
           <div
-            className="w-full h-full bg-repeat-y bg-top"
+            className="w-full h-full bg-repeat-y bg-top select-none pointer-events-none"
             style={{
               backgroundImage: "url('/images/web-braided-segment.png')",
               backgroundSize: '100% auto',
@@ -177,7 +185,11 @@ export const HangingSpiderman: React.FC = () => {
           2. SPIDER-MAN BODY (Holding the braided rope with his hands)
           Equipped with glowing animated spider-sense indicators
         */}
-        <div className="relative -mt-2 flex flex-col items-center group">
+        <div
+          draggable={false}
+          onDragStart={(e) => e.preventDefault()}
+          className="relative -mt-2 flex flex-col items-center group select-none pointer-events-none [-webkit-user-drag:none]"
+        >
           
           {/* Floating Speech / Comic Thought Bubble */}
           <AnimatePresence>
@@ -186,7 +198,7 @@ export const HangingSpiderman: React.FC = () => {
                 initial={{ opacity: 0, scale: 0.8, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.8, y: 10 }}
-                className="absolute -top-12 right-full mr-3 whitespace-nowrap bg-white text-black font-black text-[11px] px-3.5 py-1.5 rounded-2xl border-2 border-black shadow-[0_8px_25px_rgba(0,0,0,0.85)] z-50 font-sans tracking-wide uppercase pointer-events-none"
+                className="absolute -top-12 right-full mr-3 whitespace-nowrap bg-white text-black font-black text-[11px] px-3.5 py-1.5 rounded-2xl border-2 border-black shadow-[0_8px_25px_rgba(0,0,0,0.85)] z-50 font-sans tracking-wide uppercase pointer-events-none select-none"
               >
                 {speechText}
                 {/* Speech Bubble Arrow */}
@@ -195,15 +207,17 @@ export const HangingSpiderman: React.FC = () => {
             )}
           </AnimatePresence>
 
-          {/* Upside Down Spider-Man Character Asset */}
-          <div className="relative w-24 sm:w-28 h-32 sm:h-36 drop-shadow-[0_15px_30px_rgba(0,0,0,0.9)] transition-transform duration-150">
+          {/* Upside Down Spider-Man Character Asset (Browser drag disabled) */}
+          <div className="relative w-24 sm:w-28 h-32 sm:h-36 drop-shadow-[0_15px_30px_rgba(0,0,0,0.9)] transition-transform duration-150 pointer-events-none select-none [-webkit-user-drag:none]">
             <Image
               src="/images/hanging-spiderman.png"
               alt="Upside Down Hanging Spider-Man"
               fill
               sizes="(max-width: 640px) 96px, 112px"
               priority
-              className="object-contain"
+              draggable={false}
+              onDragStart={(e) => e.preventDefault()}
+              className="object-contain pointer-events-none select-none [-webkit-user-drag:none] [-webkit-user-select:none]"
             />
           </div>
 
