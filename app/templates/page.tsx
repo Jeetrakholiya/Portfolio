@@ -167,13 +167,13 @@ export default function TemplatesMarketplacePage() {
 
                 {/* Pricing Block */}
                 <div className="pt-2 flex items-baseline gap-2">
-                  <span className="text-3xl font-black font-mono text-white">${template.price}</span>
+                  <span className="text-3xl font-black font-mono text-white">₹{template.price}</span>
                   {template.originalPrice && (
                     <span className="text-sm font-mono text-white/40 line-through">
-                      ${template.originalPrice}
+                      ₹{template.originalPrice}
                     </span>
                   )}
-                  <span className="text-[11px] font-mono text-white/50">USD • ONE-TIME</span>
+                  <span className="text-[11px] font-mono text-white/50">INR • ONE-TIME</span>
                 </div>
 
                 {/* Features List */}
@@ -194,7 +194,7 @@ export default function TemplatesMarketplacePage() {
                   onClick={() => setSelectedTemplate(template)}
                   className="w-full py-3 bg-[#00f59b] hover:bg-[#00f59b]/90 text-black font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(0,245,155,0.3)] active:scale-98"
                 >
-                  <span>BUY TEMPLATE (${template.price})</span>
+                  <span>BUY TEMPLATE (₹{template.price})</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
 
@@ -209,7 +209,7 @@ export default function TemplatesMarketplacePage() {
         </div>
 
         {/* =================================================================
-            FEATURED: ALL-ACCESS TRIPLE BUNDLE CARD ($199)
+            FEATURED: ALL-ACCESS TRIPLE BUNDLE CARD (₹199)
             ================================================================= */}
         {(() => {
           const bundle = templatesCatalog.find((t) => t.themeKey === 'all')!;
@@ -217,7 +217,7 @@ export default function TemplatesMarketplacePage() {
             <div className="bg-gradient-to-r from-[#111116] via-[#161622] to-[#111116] border-2 border-[#00f59b] rounded-3xl p-6 sm:p-10 relative overflow-hidden shadow-[0_0_50px_rgba(0,245,155,0.2)]">
               
               <div className="absolute top-0 right-0 bg-[#00f59b] text-black font-mono font-black text-xs px-6 py-1.5 rounded-bl-xl uppercase tracking-wider">
-                BEST VALUE // SAVE $168
+                BEST VALUE // SAVE ₹168
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
@@ -253,10 +253,10 @@ export default function TemplatesMarketplacePage() {
                     </span>
                     <div className="flex items-center justify-center gap-3">
                       <span className="text-4xl sm:text-5xl font-black font-mono text-white">
-                        ${bundle.price}
+                        ₹{bundle.price}
                       </span>
                       <span className="text-lg font-mono text-white/40 line-through">
-                        ${bundle.originalPrice}
+                        ₹{bundle.originalPrice}
                       </span>
                     </div>
                     <span className="text-[11px] font-mono text-[#00f59b] font-bold block mt-1">
@@ -268,7 +268,7 @@ export default function TemplatesMarketplacePage() {
                     onClick={() => setSelectedTemplate(bundle)}
                     className="w-full py-4 bg-[#00f59b] hover:bg-[#00f59b]/90 text-black font-mono font-black text-sm rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_30px_rgba(0,245,155,0.5)] active:scale-98"
                   >
-                    <span>BUY ALL 3 TEMPLATES ($199)</span>
+                    <span>BUY ALL 3 TEMPLATES (₹199)</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
 
@@ -301,9 +301,9 @@ export default function TemplatesMarketplacePage() {
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.02] text-white/60">
                 <th className="p-4">FEATURE / CAPABILITY</th>
-                <th className="p-4 text-[#00f59b]">SYNTAX ($89)</th>
-                <th className="p-4 text-[#c40c24]">SPIDER-TECH ($129)</th>
-                <th className="p-4 text-white">ERIC COLE ($149)</th>
+                <th className="p-4 text-[#00f59b]">SYNTAX (₹89)</th>
+                <th className="p-4 text-[#c40c24]">SPIDER-TECH (₹129)</th>
+                <th className="p-4 text-white">ERIC COLE (₹149)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 text-white/80">

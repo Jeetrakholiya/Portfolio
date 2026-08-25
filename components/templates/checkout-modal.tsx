@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { TemplateProduct, PurchaseOrder } from '@/types/templates';
 import {
   X,
@@ -18,8 +19,10 @@ import {
   Zap,
   Terminal,
   Tv,
+  ExternalLink,
+  Smartphone,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 export interface CheckoutModalProps {
   template: TemplateProduct | null;
@@ -37,12 +40,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ template, onClose 
   const [buyerEmail, setBuyerEmail] = useState('');
   const [portfolioProject, setPortfolioProject] = useState('');
 
-  // Payment Form
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'upi' | 'paypal'>('card');
+  // Payment Form (Defaulting to UPI / QR as primary)
+  const [paymentMethod, setPaymentMethod] = useState<'upi' | 'card' | 'netbanking'>('upi');
+  const [upiRefId, setUpiRefId] = useState('');
+  const [copiedUpi, setCopiedUpi] = useState(false);
   const [cardNumber, setCardNumber] = useState('');
   const [cardExpiry, setCardExpiry] = useState('');
   const [cardCvc, setCardCvc] = useState('');
-  const [upiId, setUpiId] = useState('');
 
   // Success State
   const [completedOrder, setCompletedOrder] = useState<PurchaseOrder | null>(null);
@@ -50,6 +54,15 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ template, onClose 
   const [builderUrl, setBuilderUrl] = useState('/admin');
 
   if (!template) return null;
+
+  const MERCHANT_UPI_ID = '6354310153@ptyes';
+  const MERCHANT_NAME = 'Jeet Rakholiya';
+
+  // Standard NPCI UPI Intent URI
+  const upiIntentUri = `upi://pay?pa=${MERCHANT_UPI_ID}&pn=${encodeURIComponent(MERCHANT_NAME)}&am=${template.price}&cu=INR&tn=${encodeURIComponent(template.name + ' Template')}`;
+  
+  // Real-time generated scannable QR Code URL
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(upiIntentUri)}&bgcolor=ffffff&color=000000&margin=2`;
 
   const handleDetailsSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,6 +86,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ template, onClose 
           buyerEmail,
           amount: template.price,
           paymentMethod: paymentMethod.toUpperCase(),
+          upiRefId: paymentMethod === 'upi' ? upiRefId : undefined,
         }),
       });
 
@@ -97,6 +111,12 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ template, onClose 
     } finally {
       setProcessing(false);
     }
+  };
+
+  const handleCopyUPI = () => {
+    navigator.clipboard.writeText(MERCHANT_UPI_ID);
+    setCopiedUpi(true);
+    setTimeout(() => setCopiedUpi(false), 3000);
   };
 
   const handleCopyLicense = () => {
@@ -140,8 +160,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ template, onClose 
 
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <span className="text-2xl font-black font-mono text-white">${template.price}</span>
-              <span className="text-xs text-white/40 block font-mono">USD • ONE-TIME</span>
+              <span className="text-2xl font-black font-mono text-white">₹{template.price}</span>
+              <span className="text-xs text-white/40 block font-mono">INR • ONE-TIME</span>
             </div>
             <button
               onClick={onClose}
@@ -160,7 +180,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ template, onClose 
             <div className="space-y-1">
               <h4 className="text-lg font-bold text-white tracking-tight">Buyer Information</h4>
               <p className="text-xs text-white/60 font-mono">
-                Your license key, source code download link, and CMS builder access will be issued to this email.
+                Your license key, source code repository link, and CMS builder access will be issued to this email.
               </p>
             </div>
 
@@ -204,7 +224,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ template, onClose 
             <div className="pt-2 border-t border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-[11px] font-mono text-white/50">
                 <Lock className="w-3.5 h-3.5 text-[#00f59b]" />
-                <span>256-BIT ENCRYPTED CHECKOUT</span>
+                <span>SECURE INSTANT CHECKOUT</span>
               </div>
 
               <button
@@ -219,19 +239,32 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ template, onClose 
         )}
 
         {/* =================================================================
-            STEP 2: PAYMENT GATEWAY
+            STEP 2: PAYMENT GATEWAY (UPI / QR & CARDS)
             ================================================================= */}
         {step === 'payment' && (
           <form onSubmit={handlePaymentSubmit} className="p-6 sm:p-8 space-y-6">
             <div className="space-y-1">
-              <h4 className="text-lg font-bold text-white tracking-tight">Select Payment Method</h4>
+              <h4 className="text-lg font-bold text-white tracking-tight">Complete Payment (₹{template.price})</h4>
               <p className="text-xs text-white/60 font-mono">
-                Complete your one-time purchase of ${template.price} USD.
+                Scan QR or transfer directly to the official UPI ID to unlock your portfolio builder.
               </p>
             </div>
 
             {/* Payment Method Switcher */}
             <div className="grid grid-cols-3 gap-2 font-mono text-xs">
+              <button
+                type="button"
+                onClick={() => setPaymentMethod('upi')}
+                className={`py-3 px-2 rounded-xl border flex flex-col items-center gap-1.5 transition-all ${
+                  paymentMethod === 'upi'
+                    ? 'border-[#00f59b] bg-[#00f59b]/10 text-white font-bold'
+                    : 'border-white/15 bg-black/40 text-white/60 hover:text-white'
+                }`}
+              >
+                <QrCode className="w-4 h-4 text-[#00f59b]" />
+                <span className="text-[11px]">UPI / QR (FAST)</span>
+              </button>
+
               <button
                 type="button"
                 onClick={() => setPaymentMethod('card')}
@@ -247,30 +280,89 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ template, onClose 
 
               <button
                 type="button"
-                onClick={() => setPaymentMethod('upi')}
+                onClick={() => setPaymentMethod('netbanking')}
                 className={`py-3 px-2 rounded-xl border flex flex-col items-center gap-1.5 transition-all ${
-                  paymentMethod === 'upi'
-                    ? 'border-[#00f59b] bg-[#00f59b]/10 text-white font-bold'
-                    : 'border-white/15 bg-black/40 text-white/60 hover:text-white'
-                }`}
-              >
-                <QrCode className="w-4 h-4 text-[#00f59b]" />
-                <span className="text-[11px]">UPI / QR</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setPaymentMethod('paypal')}
-                className={`py-3 px-2 rounded-xl border flex flex-col items-center gap-1.5 transition-all ${
-                  paymentMethod === 'paypal'
+                  paymentMethod === 'netbanking'
                     ? 'border-[#00f59b] bg-[#00f59b]/10 text-white font-bold'
                     : 'border-white/15 bg-black/40 text-white/60 hover:text-white'
                 }`}
               >
                 <ShieldCheck className="w-4 h-4 text-[#00f59b]" />
-                <span className="text-[11px]">PAYPAL</span>
+                <span className="text-[11px]">NET BANKING</span>
               </button>
             </div>
+
+            {/* UPI & QR Code View */}
+            {paymentMethod === 'upi' && (
+              <div className="space-y-4 font-mono text-xs">
+                
+                {/* QR Code Container */}
+                <div className="p-4 bg-black/70 border border-white/15 rounded-2xl flex flex-col sm:flex-row items-center gap-5">
+                  <div className="relative w-36 h-36 bg-white p-2 rounded-xl shadow-lg flex-shrink-0 flex items-center justify-center">
+                    <Image
+                      src={qrCodeUrl}
+                      alt="UPI QR Code"
+                      width={130}
+                      height={130}
+                      className="object-contain"
+                      unoptimized
+                    />
+                  </div>
+
+                  <div className="space-y-2 text-center sm:text-left flex-1">
+                    <div className="flex items-center justify-center sm:justify-start gap-1.5 text-[10px] text-[#00f59b] uppercase font-bold">
+                      <Smartphone className="w-3.5 h-3.5" />
+                      <span>Scan with Any UPI App</span>
+                    </div>
+                    
+                    <p className="text-xs text-white/80">
+                      GPay, PhonePe, Paytm, BHIM, or Cred
+                    </p>
+
+                    {/* Copy UPI Box */}
+                    <div className="flex items-center justify-between gap-2 bg-white/5 border border-white/10 px-3 py-2 rounded-lg font-mono text-xs">
+                      <span className="text-white font-bold truncate">{MERCHANT_UPI_ID}</span>
+                      <button
+                        type="button"
+                        onClick={handleCopyUPI}
+                        className="px-2 py-1 bg-[#00f59b]/20 hover:bg-[#00f59b]/30 text-[#00f59b] font-bold rounded flex items-center gap-1 transition-all text-[10px]"
+                      >
+                        {copiedUpi ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                        <span>{copiedUpi ? 'COPIED' : 'COPY'}</span>
+                      </button>
+                    </div>
+
+                    {/* Direct App Link for mobile */}
+                    <a
+                      href={upiIntentUri}
+                      className="inline-flex items-center gap-1.5 text-[11px] text-[#00f59b] hover:underline font-bold"
+                    >
+                      <span>Click to pay via UPI app</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                </div>
+
+                {/* UTR / Reference ID Field */}
+                <div className="space-y-1.5">
+                  <label className="text-white/80 uppercase font-bold block">
+                    UPI Reference ID / UTR Number (12 Digits) *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={upiRefId}
+                    onChange={(e) => setUpiRefId(e.target.value)}
+                    placeholder="Enter 12-digit UTR from your UPI payment receipt"
+                    className="w-full px-4 py-2.5 bg-black/60 border border-white/15 rounded-xl text-white font-mono text-xs focus:outline-none focus:border-[#00f59b]"
+                  />
+                  <span className="text-[10px] text-white/40 block">
+                    Found in your payment confirmation screen in GPay, PhonePe, or Paytm.
+                  </span>
+                </div>
+
+              </div>
+            )}
 
             {/* Card Inputs */}
             {paymentMethod === 'card' && (
@@ -279,7 +371,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ template, onClose 
                   <label className="text-white/80 uppercase font-bold block">Card Number</label>
                   <input
                     type="text"
-                    required
                     maxLength={19}
                     value={cardNumber}
                     onChange={(e) => {
@@ -302,7 +393,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ template, onClose 
                     <label className="text-white/80 uppercase font-bold block">Expires (MM/YY)</label>
                     <input
                       type="text"
-                      required
                       maxLength={5}
                       value={cardExpiry}
                       onChange={(e) => setCardExpiry(e.target.value)}
@@ -315,7 +405,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ template, onClose 
                     <label className="text-white/80 uppercase font-bold block">CVC / CVV</label>
                     <input
                       type="password"
-                      required
                       maxLength={4}
                       value={cardCvc}
                       onChange={(e) => setCardCvc(e.target.value)}
@@ -327,27 +416,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ template, onClose 
               </div>
             )}
 
-            {/* UPI Inputs */}
-            {paymentMethod === 'upi' && (
-              <div className="space-y-4 font-mono text-xs text-center p-4 bg-black/60 border border-white/10 rounded-xl">
-                <div className="w-32 h-32 mx-auto bg-white rounded-lg p-2 flex items-center justify-center shadow-md">
-                  <QrCode className="w-24 h-24 text-black" />
-                </div>
-                <p className="text-[11px] text-white/60">Scan with GPay, PhonePe, or Paytm to pay ${template.price}</p>
-                <input
-                  type="text"
-                  value={upiId}
-                  onChange={(e) => setUpiId(e.target.value)}
-                  placeholder="username@okhdfcbank"
-                  className="w-full px-4 py-2.5 bg-black border border-white/15 rounded-lg text-white font-mono text-xs text-center"
-                />
-              </div>
-            )}
-
-            {/* PayPal */}
-            {paymentMethod === 'paypal' && (
+            {/* Net Banking */}
+            {paymentMethod === 'netbanking' && (
               <div className="p-4 bg-black/60 border border-white/10 rounded-xl text-center font-mono text-xs text-white/70 space-y-2">
-                <p>You will be authenticated and redirected to PayPal to complete your payment of ${template.price}.</p>
+                <p>Transfer ₹{template.price} to UPI ID <strong>6354310153@ptyes</strong> using your Net Banking portal.</p>
               </div>
             )}
 
@@ -368,7 +440,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ template, onClose 
                 {processing ? (
                   <span className="animate-pulse">VERIFYING PAYMENT...</span>
                 ) : (
-                  <span>PAY ${template.price} &amp; UNLOCK BUILDER</span>
+                  <span>CONFIRM ₹{template.price} &amp; UNLOCK BUILDER</span>
                 )}
               </button>
             </div>
@@ -428,7 +500,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ template, onClose 
 
               <button
                 onClick={() => {
-                  alert(`Source code download link has been dispatched to ${completedOrder.buyerEmail}!`);
+                  alert(`Source code repository download link dispatched to ${completedOrder.buyerEmail}!`);
                 }}
                 className="w-full py-3 bg-white/10 hover:bg-white/20 text-white font-mono text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition-colors border border-white/15"
               >
