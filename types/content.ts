@@ -181,13 +181,13 @@ export function createDefaultThemeProfiles(baseContent: Partial<AppContent>): Th
     spiderTech: {
       site: {
         ...baseSite,
-        name: 'Spider-Man',
-        creativeName: 'PETER PARKER / MILES',
+        name: baseSite.name || 'Jeet Rakholiya',
+        creativeName: baseSite.creativeName || 'J.GAZE_',
         primaryRole: 'Multiverse Web Engineer',
-        title: 'Spider-Man — Multiverse Web Architecture & AI Systems',
-        heroSubtitle: 'Who are you under the mask? Engineering high-speed webs and neural agent networks.',
+        title: `${baseSite.name || 'Jeet Rakholiya'} — Multiverse Web Architecture & AI Systems`,
+        heroSubtitle: 'Engineering high-speed web architectures, intelligent AI systems, and living digital experiences across the web.',
         heroHeadline: 'WITH GREAT CODE COMES GREAT COMPUTATION.',
-        heroQuote: 'ANYONE CAN WEAR THE MASK — BUT CRAFTING RESILIENT ARCHITECTURES REQUIRES RELENTLESS MASTERY.',
+        heroQuote: 'BUILDING RESILIENT ARCHITECTURES REQUIRES RELENTLESS MASTERY AND INTENTIONAL DESIGN.',
       },
       projects: [...baseProjects],
       creative: [...baseCreative],

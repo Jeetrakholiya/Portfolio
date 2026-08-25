@@ -87,7 +87,7 @@ export const SpiderHero: React.FC<SpiderHeroProps> = ({ siteContent }) => {
 
         {/* Hero Mission Statement */}
         <p className="max-w-3xl text-sm sm:text-lg text-white/80 font-sans tracking-wide leading-relaxed pt-2">
-          Every Spider-Man carries something different. Engineering high-speed web architectures, intelligent AI systems, and living digital experiences across the entire web.
+          Engineering high-speed web architectures, intelligent AI systems, and living digital experiences across the entire web.
         </p>
 
         {/* Action Controls & Dark Suit Red / White Chamfered Buttons */}

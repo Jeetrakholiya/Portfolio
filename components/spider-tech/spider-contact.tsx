@@ -170,8 +170,8 @@ export const SpiderContact: React.FC<SpiderContactProps> = ({ siteContent }) => 
 
           {/* Right Location & Copyright */}
           <div className="text-right space-y-0.5 text-white/60 uppercase tracking-widest text-[11px]">
-            <div>&copy; 2026 // SPIDER-MAN UNIVERSE</div>
-            <div className="text-[#c40c24] font-bold">{name.toUpperCase()}</div>
+            <div>&copy; 2026 // {name.toUpperCase()}</div>
+            <div className="text-[#c40c24] font-bold">J.GAZE_</div>
           </div>
 
         </div>
