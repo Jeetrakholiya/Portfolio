@@ -32,11 +32,14 @@ export const SpiderView: React.FC<SpiderViewProps> = ({ content }) => {
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <Image
           src="/images/spiderman-bg.jpg"
-          alt="Spider-Man Sketch Artwork Background"
+          alt="Spider-Man 4K Sketch Artwork Background"
           fill
           priority
+          unoptimized
+          quality={100}
           sizes="100vw"
           className="object-cover object-center"
+          style={{ imageRendering: 'auto' }}
         />
       </div>
 
