@@ -34,6 +34,15 @@ export interface PortfolioViewContainerProps {
 export const PortfolioViewContainer: React.FC<PortfolioViewContainerProps> = ({ content }) => {
   const { mode } = useInterfaceMode();
 
+  const syntaxProfile = content.themeProfiles?.syntax || {
+    site: content.site,
+    projects: content.projects,
+    creative: content.creative,
+    skills: content.skills,
+    education: content.education,
+    certifications: content.certifications,
+  };
+
   return (
     <div className="relative w-full min-h-screen">
       {/* Floating 3-Way Interface Switcher Pill */}
@@ -50,14 +59,14 @@ export const PortfolioViewContainer: React.FC<PortfolioViewContainerProps> = ({ 
             className="w-full flex flex-col bg-[#09090b] text-[#f2f2f0] selection:bg-[#00f59b] selection:text-[#09090b]"
           >
             <CustomCursor />
-            <HeroSection siteContent={content.site} />
+            <HeroSection siteContent={syntaxProfile.site} />
             <InfiniteMarquee />
-            <SelectedWorkSection projects={content.projects} />
-            <CreativeSection creativeWorks={content.creative} />
-            <AboutSection siteContent={content.site} />
+            <SelectedWorkSection projects={syntaxProfile.projects} />
+            <CreativeSection creativeWorks={syntaxProfile.creative} />
+            <AboutSection siteContent={syntaxProfile.site} />
             <SkillsSection />
             <BackgroundSection />
-            <CertificationsSection certifications={content.certifications} />
+            <CertificationsSection certifications={syntaxProfile.certifications} />
             <ContactSection />
             <Footer />
           </motion.div>

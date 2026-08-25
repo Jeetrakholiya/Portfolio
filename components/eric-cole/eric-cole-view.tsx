@@ -19,6 +19,13 @@ export interface EricColeViewProps {
 export const EricColeView: React.FC<EricColeViewProps> = ({ content }) => {
   const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>('light');
 
+  const profile = content.themeProfiles?.ericCole || {
+    site: content.site,
+    projects: content.projects,
+    creative: content.creative,
+    skills: content.skills,
+  };
+
   useEffect(() => {
     // Map section IDs to their intended themes
     const sectionThemes: Record<string, 'light' | 'dark'> = {
@@ -75,13 +82,13 @@ export const EricColeView: React.FC<EricColeViewProps> = ({ content }) => {
       {/* 90's Retro CRT TV Full-Page Scanline & Signal Variance Overlay */}
       <RetroTVOverlay />
 
-      <EricHero siteContent={content.site} />
-      <EricProjects projects={content.projects} />
+      <EricHero siteContent={profile.site} />
+      <EricProjects projects={profile.projects} />
       <EricApproach />
       <EricServices />
-      <EricAbout siteContent={content.site} />
+      <EricAbout siteContent={profile.site} />
       <EricJGazeReel />
-      <EricContact siteContent={content.site} />
+      <EricContact siteContent={profile.site} />
     </div>
   );
 };

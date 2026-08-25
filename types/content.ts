@@ -22,6 +22,7 @@ export interface SiteContent {
   heroTimeline: string;
   heroAcademic: string;
   heroSubtitle: string;
+  heroHeadline?: string;
   portraitImage: string;
 }
 
@@ -67,9 +68,26 @@ export interface TemplatesConfig {
   ericCole: EricColeTemplateConfig;
 }
 
+export interface ThemeProfileData {
+  site: SiteContent;
+  projects: Project[];
+  creative: CreativeWork[];
+  skills: SkillItem[];
+  education?: Education[];
+  certifications?: Certification[];
+  settings?: Record<string, any>;
+}
+
+export interface ThemeProfilesMap {
+  syntax: ThemeProfileData;
+  spiderTech: ThemeProfileData;
+  ericCole: ThemeProfileData;
+}
+
 export interface AppContent {
   site: SiteContent;
   templates?: TemplatesConfig;
+  themeProfiles?: ThemeProfilesMap;
   projects: Project[];
   creative: CreativeWork[];
   skills: SkillItem[];
@@ -108,7 +126,7 @@ export const defaultTemplatesConfig: TemplatesConfig = {
     badge: '90s VINTAGE CRT TV & EDITORIAL',
     heroTitle: 'ERIC COLE',
     heroSubtitle: 'Editorial Portfolio of Jeet Rakholiya',
-    videoSrc: '/images/IMG_1935.MOV',
+    videoSrc: '/videos/j-gaze-reel.mp4',
     tvChannel: 'CH 04 • J.GAZE_ EDITORIAL',
     soundEnabled: true,
     aboutHeadline: 'A Visual Storyteller in Code and Cinematography',

@@ -1,16 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
-  LayoutTemplate,
   Settings,
   FolderGit2,
   Clapperboard,
   Sparkles,
-  GraduationCap,
   Save,
   LogOut,
   ArrowUpRight,
@@ -19,54 +17,93 @@ import {
   Upload,
   Check,
   AlertCircle,
-  Film,
   Eye,
   Terminal,
   Tv,
   CheckCircle2,
-  ArrowLeft,
   Sliders,
-  Palette,
-  FileImage,
+  Copy,
+  Download,
+  UploadCloud,
+  FileCode,
+  Shield,
+  Layers,
+  Zap,
 } from 'lucide-react';
-import { AppContent, defaultTemplatesConfig, TemplatesConfig } from '@/types/content';
+import {
+  AppContent,
+  defaultTemplatesConfig,
+  ThemeProfileData,
+  ThemeProfilesMap,
+  createDefaultThemeProfiles,
+} from '@/lib/content-service';
 import { Project } from '@/types/project';
 import { CreativeWork } from '@/types/creative';
 import { SkillItem } from '@/types/skills';
-import { Certification } from '@/types/certifications';
+
+type ThemeKey = 'syntax' | 'spiderTech' | 'ericCole';
+
+const themeMeta: Record<ThemeKey, { label: string; icon: any; color: string; bg: string; border: string; desc: string }> = {
+  syntax: {
+    label: 'Syntax (Dark Terminal)',
+    icon: Terminal,
+    color: '#00f59b',
+    bg: 'bg-[#00f59b]/10',
+    border: 'border-[#00f59b]',
+    desc: 'Developer & Software Engineer Persona • Cyber Monospace',
+  },
+  spiderTech: {
+    label: 'Spider-Tech (Multiverse)',
+    icon: Zap,
+    color: '#c40c24',
+    bg: 'bg-[#c40c24]/10',
+    border: 'border-[#c40c24]',
+    desc: 'Spider-Verse & Sci-Fi Persona • 360° Elastic Web Physics',
+  },
+  ericCole: {
+    label: 'Eric Cole (Retro CRT TV)',
+    icon: Tv,
+    color: '#ffffff',
+    bg: 'bg-white/10',
+    border: 'border-white',
+    desc: 'Editorial & Filmmaker Persona • Vintage 90s CRT Monitor',
+  },
+};
 
 export default function AdminDashboardPage() {
   const [content, setContent] = useState<AppContent | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<'templates' | 'profile' | 'projects' | 'creative' | 'skills' | 'academic'>('templates');
   
-  // Theme Workspace State: Gallery View vs Dedicated Theme Management View
-  const [selectedTemplateToEdit, setSelectedTemplateToEdit] = useState<'syntax' | 'spiderTech' | 'ericCole'>('syntax');
-  const [isEditingThemeWorkspace, setIsEditingThemeWorkspace] = useState(false);
-  
+  // Active Theme Workspace: syntax | spiderTech | ericCole
+  const [activeTheme, setActiveTheme] = useState<ThemeKey>('syntax');
+
+  // Sub-tabs for the active theme
+  const [activeTab, setActiveTab] = useState<'profile' | 'projects' | 'creative' | 'skills' | 'customizer'>('profile');
+
+  // Notification Toast
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
-  // Modals / Selected Items
+  // Modals & Item Editors
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [isNewProject, setIsNewProject] = useState(false);
   const [editingCreative, setEditingCreative] = useState<CreativeWork | null>(null);
   const [isNewCreative, setIsNewCreative] = useState(false);
 
-  // New Skill / Cert Inputs
+  // Copy Theme Modal State
+  const [showCopyModal, setShowCopyModal] = useState(false);
+  const [copySourceTheme, setCopySourceTheme] = useState<ThemeKey>('syntax');
+
+  // Skill Input State
   const [newSkillName, setNewSkillName] = useState('');
   const [newSkillCategory, setNewSkillCategory] = useState('Programming');
   const [newSkillHighlight, setNewSkillHighlight] = useState(false);
 
-  const [newCertTitle, setNewCertTitle] = useState('');
-  const [newCertIssuer, setNewCertIssuer] = useState('Coursera');
-  const [newCertDate, setNewCertDate] = useState('2025');
-
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   const fetchContent = React.useCallback(async () => {
     try {
-      // Check auth first
       const authRes = await fetch('/api/admin/auth');
       const authData = await authRes.json();
       if (!authData.authenticated) {
@@ -81,6 +118,9 @@ export default function AdminDashboardPage() {
         if (!loadedContent.templates) {
           loadedContent.templates = defaultTemplatesConfig;
         }
+        if (!loadedContent.themeProfiles || !loadedContent.themeProfiles.syntax || !loadedContent.themeProfiles.spiderTech || !loadedContent.themeProfiles.ericCole) {
+          loadedContent.themeProfiles = createDefaultThemeProfiles(loadedContent);
+        }
         setContent(loadedContent);
       }
     } catch (err) {
@@ -91,19 +131,11 @@ export default function AdminDashboardPage() {
     }
   }, [router]);
 
-  // Load Content
   useEffect(() => {
     fetchContent();
   }, [fetchContent]);
 
-  const showNotification = (type: 'success' | 'error', message: string) => {
-    setNotification({ type, message });
-    setTimeout(() => {
-      setNotification(null);
-    }, 4000);
-  };
-
-  const handleSaveAll = async () => {
+  const handleSaveAll = React.useCallback(async () => {
     if (!content) return;
     setSaving(true);
     try {
@@ -114,7 +146,7 @@ export default function AdminDashboardPage() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        showNotification('success', 'All template & portfolio changes saved live!');
+        showNotification('success', `Live portfolio changes for "${themeMeta[activeTheme].label}" saved!`);
       } else {
         showNotification('error', data.error || 'Failed to save changes.');
       }
@@ -123,6 +155,63 @@ export default function AdminDashboardPage() {
     } finally {
       setSaving(false);
     }
+  }, [content, activeTheme]);
+
+  // Keyboard shortcut Ctrl+S / Cmd+S
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        handleSaveAll();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleSaveAll]);
+
+  const showNotification = (type: 'success' | 'error', message: string) => {
+    setNotification({ type, message });
+    setTimeout(() => {
+      setNotification(null);
+    }, 4000);
+  };
+
+  // Helper to get active theme profile
+  const getActiveProfile = (): ThemeProfileData => {
+    if (!content) {
+      return createDefaultThemeProfiles({}).syntax;
+    }
+    if (!content.themeProfiles) {
+      content.themeProfiles = createDefaultThemeProfiles(content);
+    }
+    return content.themeProfiles[activeTheme] || content.themeProfiles.syntax;
+  };
+
+  // Helper to mutate active theme profile
+  const updateActiveProfile = (updater: (prev: ThemeProfileData) => ThemeProfileData) => {
+    if (!content) return;
+    const currentProfiles = content.themeProfiles || createDefaultThemeProfiles(content);
+    const currentThemeData = currentProfiles[activeTheme] || currentProfiles.syntax;
+    const updatedThemeData = updater({ ...currentThemeData });
+
+    const newProfiles: ThemeProfilesMap = {
+      ...currentProfiles,
+      [activeTheme]: updatedThemeData,
+    };
+
+    setContent({
+      ...content,
+      themeProfiles: newProfiles,
+      // If updating syntax, keep fallback in sync
+      ...(activeTheme === 'syntax'
+        ? {
+            site: updatedThemeData.site,
+            projects: updatedThemeData.projects,
+            creative: updatedThemeData.creative,
+            skills: updatedThemeData.skills,
+          }
+        : {}),
+    });
   };
 
   const handleLogout = async () => {
@@ -162,1165 +251,458 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const updateSiteField = (field: string, value: any) => {
-    if (!content) return;
-    setContent({
-      ...content,
-      site: {
-        ...content.site,
-        [field]: value,
-      },
-    });
+  // Copy / Clone details from another theme
+  const handleCopyFromTheme = () => {
+    if (!content || !content.themeProfiles) return;
+    const sourceData = content.themeProfiles[copySourceTheme];
+    if (!sourceData) return;
+
+    updateActiveProfile(() => ({
+      site: { ...sourceData.site },
+      projects: [...sourceData.projects],
+      creative: [...sourceData.creative],
+      skills: [...sourceData.skills],
+      education: sourceData.education ? [...sourceData.education] : undefined,
+      certifications: sourceData.certifications ? [...sourceData.certifications] : undefined,
+      settings: { ...sourceData.settings },
+    }));
+
+    setShowCopyModal(false);
+    showNotification('success', `Copied all content from ${themeMeta[copySourceTheme].label} into ${themeMeta[activeTheme].label}!`);
   };
 
-  const handleUpdateTemplate = (
-    templateKey: 'syntax' | 'spiderTech' | 'ericCole',
-    field: string,
-    value: any
-  ) => {
+  // Export JSON file
+  const handleExportJSON = () => {
     if (!content) return;
-    const currentTemplates: TemplatesConfig = content.templates || defaultTemplatesConfig;
-    setContent({
-      ...content,
-      templates: {
-        ...currentTemplates,
-        [templateKey]: {
-          ...currentTemplates[templateKey],
-          [field]: value,
-        },
-      },
-    });
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(content, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute('href', dataStr);
+    downloadAnchor.setAttribute('download', `portfolio-config-${new Date().toISOString().split('T')[0]}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    showNotification('success', 'Portfolio configuration exported as JSON!');
   };
 
-  const handleSetActiveTemplate = (active: 'syntax' | 'fuel' | 'eric-cole') => {
-    if (!content) return;
-    const currentTemplates: TemplatesConfig = content.templates || defaultTemplatesConfig;
-    setContent({
-      ...content,
-      templates: {
-        ...currentTemplates,
-        activeTemplate: active,
-      },
-    });
-    showNotification('success', `Active default public template set to ${active.toUpperCase()}!`);
+  // Import JSON file
+  const handleImportJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileReader = new FileReader();
+    if (e.target.files && e.target.files[0]) {
+      fileReader.readAsText(e.target.files[0], 'UTF-8');
+      fileReader.onload = (event) => {
+        try {
+          const parsed = JSON.parse(event.target?.result as string) as AppContent;
+          if (parsed.site || parsed.themeProfiles) {
+            if (!parsed.themeProfiles) {
+              parsed.themeProfiles = createDefaultThemeProfiles(parsed);
+            }
+            setContent(parsed);
+            showNotification('success', 'Imported portfolio configuration successfully! Click Save to apply.');
+          } else {
+            showNotification('error', 'Invalid JSON schema.');
+          }
+        } catch {
+          showNotification('error', 'Failed to parse JSON file.');
+        }
+      };
+    }
   };
+
+
 
   if (loading) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-[#09090b] text-[#00f59b] font-mono text-sm">
-        <span className="animate-pulse">Loading Admin Control Center...</span>
+      <div className="min-h-screen bg-[#09090b] text-white flex items-center justify-center font-mono">
+        <div className="flex items-center gap-3 text-[#00f59b] animate-pulse">
+          <Terminal className="w-6 h-6 animate-spin" />
+          <span>INITIALIZING MULTI-THEME PORTFOLIO CMS...</span>
+        </div>
       </div>
     );
   }
 
-  if (!content) return null;
-
-  const currentTemplates = content.templates || defaultTemplatesConfig;
+  const activeProfile = getActiveProfile();
 
   return (
-    <div className="min-h-screen w-full flex flex-col bg-[#09090b] text-[#f2f2f0] pb-24 lg:pb-12">
+    <div className="min-h-screen bg-[#09090b] text-[#f4f4f5] font-sans pb-28">
+      
+      {/* Hidden File Input for JSON Import */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleImportJSON}
+        accept=".json"
+        className="hidden"
+      />
+
       {/* =================================================================
-          TOP APP BAR (MOBILE & DESKTOP RESPONSIVE)
+          TOP NAVIGATION BAR & MULTI-THEME WORKSPACE CONTROLS
           ================================================================= */}
-      <header className="sticky top-0 z-50 w-full bg-[#0c0c10]/95 backdrop-blur-md border-b border-white/[0.08] px-4 sm:px-8 py-3 flex items-center justify-between">
+      <header className="sticky top-0 z-40 bg-[#09090b]/90 backdrop-blur-xl border-b border-white/10 px-4 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+        
+        {/* Left Title & Status */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#00f59b] animate-pulse shrink-0" />
-            <span className="font-mono text-xs sm:text-sm font-bold uppercase tracking-wider text-white truncate">
-              CMS Studio
-            </span>
+          <div className="p-2 rounded-lg bg-white/5 border border-white/10">
+            <Sliders className="w-5 h-5 text-[#00f59b]" />
           </div>
-          <span className="text-white/20 hidden sm:inline">|</span>
-          <span className="font-mono text-[10px] sm:text-[11px] text-muted uppercase tracking-widest hidden md:inline">
-            Active: <strong className="text-[#00f59b]">{currentTemplates.activeTemplate.toUpperCase()}</strong>
-          </span>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-sm sm:text-base tracking-tight text-white">PORTFOLIO BUILDER CMS</span>
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#00f59b]/20 text-[#00f59b] border border-[#00f59b]/40">
+                MULTI-THEME
+              </span>
+            </div>
+            <p className="text-[11px] text-white/50 font-mono hidden sm:block">
+              Build custom portfolios with independent profiles across all 3 themes
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-4 font-mono text-xs">
-          {/* Notification Pill */}
-          {notification && (
-            <div
-              className={`px-2.5 py-1 rounded-[2px] flex items-center gap-1.5 text-[11px] font-semibold ${
-                notification.type === 'success'
-                  ? 'bg-[#00f59b]/15 text-[#00f59b] border border-[#00f59b]/30'
-                  : 'bg-red-500/15 text-red-400 border border-red-500/30'
-              }`}
-            >
-              {notification.type === 'success' ? <Check className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
-              <span className="hidden sm:inline">{notification.message}</span>
-              <span className="sm:hidden">{notification.type === 'success' ? 'Saved' : 'Error'}</span>
-            </div>
-          )}
+        {/* Right Global Actions */}
+        <div className="flex items-center gap-2 sm:gap-3 font-mono text-xs">
+          
+          {/* Export JSON */}
+          <button
+            onClick={handleExportJSON}
+            title="Download full portfolio backup JSON"
+            className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/15 text-white/80 hover:text-white flex items-center gap-1.5 transition-all text-[11px]"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">EXPORT</span>
+          </button>
 
+          {/* Import JSON */}
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            title="Upload custom portfolio JSON"
+            className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/15 text-white/80 hover:text-white flex items-center gap-1.5 transition-all text-[11px]"
+          >
+            <UploadCloud className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">IMPORT</span>
+          </button>
+
+          {/* View Live */}
           <Link
             href="/"
             target="_blank"
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-white/5 hover:bg-white/10 rounded-[2px] text-muted hover:text-white transition-colors uppercase tracking-widest text-[10px] sm:text-[11px]"
-            title="Preview Live Portfolio"
+            className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/15 text-white flex items-center gap-1.5 transition-all text-[11px]"
           >
-            <span className="hidden sm:inline">Live Site</span>
-            <ArrowUpRight className="w-3.5 h-3.5" />
+            <Eye className="w-3.5 h-3.5 text-[#00f59b]" />
+            <span className="hidden sm:inline">VIEW LIVE</span>
           </Link>
 
+          {/* Save Live Button */}
           <button
             onClick={handleSaveAll}
             disabled={saving}
-            className="px-3 sm:px-4 py-1.5 sm:py-2 bg-[#00f59b] text-[#09090b] font-bold uppercase tracking-widest text-[10px] sm:text-[11px] rounded-[2px] hover:bg-[#00f59b]/90 transition-all flex items-center gap-1.5 disabled:opacity-50"
+            className="px-4 py-1.5 rounded-lg bg-[#00f59b] hover:bg-[#00f59b]/90 text-black font-bold flex items-center gap-1.5 transition-all shadow-[0_0_15px_rgba(0,245,155,0.4)] disabled:opacity-50 text-[11px]"
           >
             <Save className="w-3.5 h-3.5" />
-            <span>{saving ? 'Saving...' : 'Save'}</span>
+            <span>{saving ? 'SAVING...' : 'SAVE LIVE'}</span>
           </button>
 
+          {/* Logout */}
           <button
             onClick={handleLogout}
-            className="p-1.5 sm:p-2 text-muted hover:text-red-400 transition-colors"
             title="Logout"
-            aria-label="Logout"
+            className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition-all"
           >
             <LogOut className="w-4 h-4" />
           </button>
         </div>
+
       </header>
 
       {/* =================================================================
-          MOBILE HORIZONTAL TAB BAR (< 1024px)
+          TOAST NOTIFICATION
           ================================================================= */}
-      <div className="lg:hidden w-full bg-[#09090b] border-b border-white/[0.08] px-3 py-2 sticky top-[49px] z-40 backdrop-blur-md overflow-x-auto no-scrollbar">
-        <div className="flex items-center gap-1.5 min-w-max">
-          <button
-            onClick={() => {
-              setActiveTab('templates');
-              setIsEditingThemeWorkspace(false);
-            }}
-            className={`px-3 py-1.5 rounded-[2px] font-mono text-[11px] uppercase tracking-wider flex items-center gap-1.5 transition-colors ${
-              activeTab === 'templates'
-                ? 'bg-[#00f59b] text-[#09090b] font-bold'
-                : 'bg-white/[0.04] text-muted hover:text-white'
-            }`}
-          >
-            <LayoutTemplate className="w-3.5 h-3.5" />
-            <span>Themes</span>
-            <span className={`text-[9px] px-1 rounded ${activeTab === 'templates' ? 'bg-black/20 text-black' : 'bg-white/10 text-white/70'}`}>
-              3
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('profile')}
-            className={`px-3 py-1.5 rounded-[2px] font-mono text-[11px] uppercase tracking-wider flex items-center gap-1.5 transition-colors ${
-              activeTab === 'profile'
-                ? 'bg-[#00f59b] text-[#09090b] font-bold'
-                : 'bg-white/[0.04] text-muted hover:text-white'
-            }`}
-          >
-            <Settings className="w-3.5 h-3.5" />
-            <span>Profile</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('projects')}
-            className={`px-3 py-1.5 rounded-[2px] font-mono text-[11px] uppercase tracking-wider flex items-center gap-1.5 transition-colors ${
-              activeTab === 'projects'
-                ? 'bg-[#00f59b] text-[#09090b] font-bold'
-                : 'bg-white/[0.04] text-muted hover:text-white'
-            }`}
-          >
-            <FolderGit2 className="w-3.5 h-3.5" />
-            <span>Projects</span>
-            <span className={`text-[9px] px-1 rounded ${activeTab === 'projects' ? 'bg-black/20 text-black' : 'bg-white/10 text-white/70'}`}>
-              {content.projects.length}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('creative')}
-            className={`px-3 py-1.5 rounded-[2px] font-mono text-[11px] uppercase tracking-wider flex items-center gap-1.5 transition-colors ${
-              activeTab === 'creative'
-                ? 'bg-[#00f59b] text-[#09090b] font-bold'
-                : 'bg-white/[0.04] text-muted hover:text-white'
-            }`}
-          >
-            <Clapperboard className="w-3.5 h-3.5" />
-            <span>Reels</span>
-            <span className={`text-[9px] px-1 rounded ${activeTab === 'creative' ? 'bg-black/20 text-black' : 'bg-white/10 text-white/70'}`}>
-              {content.creative.length}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('skills')}
-            className={`px-3 py-1.5 rounded-[2px] font-mono text-[11px] uppercase tracking-wider flex items-center gap-1.5 transition-colors ${
-              activeTab === 'skills'
-                ? 'bg-[#00f59b] text-[#09090b] font-bold'
-                : 'bg-white/[0.04] text-muted hover:text-white'
-            }`}
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Skills</span>
-            <span className={`text-[9px] px-1 rounded ${activeTab === 'skills' ? 'bg-black/20 text-black' : 'bg-white/10 text-white/70'}`}>
-              {content.skills.length}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('academic')}
-            className={`px-3 py-1.5 rounded-[2px] font-mono text-[11px] uppercase tracking-wider flex items-center gap-1.5 transition-colors ${
-              activeTab === 'academic'
-                ? 'bg-[#00f59b] text-[#09090b] font-bold'
-                : 'bg-white/[0.04] text-muted hover:text-white'
-            }`}
-          >
-            <GraduationCap className="w-3.5 h-3.5" />
-            <span>Certs</span>
-            <span className={`text-[9px] px-1 rounded ${activeTab === 'academic' ? 'bg-black/20 text-black' : 'bg-white/10 text-white/70'}`}>
-              {content.certifications.length}
-            </span>
-          </button>
+      {notification && (
+        <div
+          className={`fixed bottom-20 right-6 z-50 px-4 py-3 rounded-xl backdrop-blur-xl border shadow-2xl flex items-center gap-3 font-mono text-xs animate-in slide-in-from-bottom-5 ${
+            notification.type === 'success'
+              ? 'bg-[#00f59b]/15 text-[#00f59b] border-[#00f59b]/40 shadow-[0_0_30px_rgba(0,245,155,0.3)]'
+              : 'bg-red-500/15 text-red-400 border-red-500/40 shadow-[0_0_30px_rgba(239,68,68,0.3)]'
+          }`}
+        >
+          {notification.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+          <span>{notification.message}</span>
         </div>
-      </div>
+      )}
 
       {/* =================================================================
-          MAIN ADMIN WORKSPACE: SIDEBAR TABS + CONTENT
+          MAIN WORKSPACE CONTENT CONTAINER
           ================================================================= */}
-      <div className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-8 lg:p-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-        {/* Desktop Sidebar Nav (>= 1024px) */}
-        <aside className="hidden lg:block lg:col-span-3 space-y-1.5">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-muted block mb-3 px-3">
-            Management Modules
-          </span>
-
-          <button
-            onClick={() => {
-              setActiveTab('templates');
-              setIsEditingThemeWorkspace(false);
-            }}
-            className={`w-full px-4 py-3 rounded-[2px] font-mono text-xs uppercase tracking-wider flex items-center justify-between transition-colors text-left ${
-              activeTab === 'templates'
-                ? 'bg-white/10 text-white font-bold border-l-2 border-[#00f59b]'
-                : 'text-muted hover:text-white hover:bg-white/[0.03]'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <LayoutTemplate className="w-4 h-4 text-[#00f59b]" />
-              <span>Theme Gallery &amp; Studio</span>
+      <main className="max-w-7xl mx-auto px-4 sm:px-8 pt-6 space-y-6">
+        
+        {/* =================================================================
+            1. THEME WORKSPACE SELECTOR (TOP TABS)
+            ================================================================= */}
+        <div className="bg-[#111116] border border-white/10 rounded-2xl p-4 sm:p-6 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="text-xs font-mono text-white/50 uppercase tracking-widest">
+                ACTIVE PORTFOLIO THEME WORKSPACE:
+              </div>
+              <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2 mt-0.5">
+                <span>EDITING:</span>
+                <span style={{ color: themeMeta[activeTheme].color }}>
+                  {themeMeta[activeTheme].label}
+                </span>
+              </h1>
             </div>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#00f59b]/20 text-[#00f59b] font-mono">
-              3 Themes
-            </span>
-          </button>
 
-          <button
-            onClick={() => setActiveTab('profile')}
-            className={`w-full px-4 py-3 rounded-[2px] font-mono text-xs uppercase tracking-wider flex items-center gap-3 transition-colors text-left ${
-              activeTab === 'profile'
-                ? 'bg-white/10 text-white font-bold border-l-2 border-[#00f59b]'
-                : 'text-muted hover:text-white hover:bg-white/[0.03]'
-            }`}
-          >
-            <Settings className="w-4 h-4 text-[#00f59b]" />
-            <span>Profile &amp; Hero</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('projects')}
-            className={`w-full px-4 py-3 rounded-[2px] font-mono text-xs uppercase tracking-wider flex items-center justify-between transition-colors text-left ${
-              activeTab === 'projects'
-                ? 'bg-white/10 text-white font-bold border-l-2 border-[#00f59b]'
-                : 'text-muted hover:text-white hover:bg-white/[0.03]'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <FolderGit2 className="w-4 h-4 text-[#00f59b]" />
-              <span>Projects Studio</span>
+            {/* Quick Actions for Active Theme */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowCopyModal(true)}
+                className="px-3.5 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/15 text-xs font-mono text-white/80 hover:text-white flex items-center gap-2 transition-all"
+              >
+                <Copy className="w-3.5 h-3.5 text-[#00f59b]" />
+                <span>COPY FROM ANOTHER THEME</span>
+              </button>
             </div>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-white font-mono">
-              {content.projects.length}
-            </span>
-          </button>
+          </div>
 
-          <button
-            onClick={() => setActiveTab('creative')}
-            className={`w-full px-4 py-3 rounded-[2px] font-mono text-xs uppercase tracking-wider flex items-center justify-between transition-colors text-left ${
-              activeTab === 'creative'
-                ? 'bg-white/10 text-white font-bold border-l-2 border-[#00f59b]'
-                : 'text-muted hover:text-white hover:bg-white/[0.03]'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <Clapperboard className="w-4 h-4 text-[#00f59b]" />
-              <span>J.GAZE_ Reels</span>
+          {/* Theme Workspace Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+            {(['syntax', 'spiderTech', 'ericCole'] as ThemeKey[]).map((key) => {
+              const meta = themeMeta[key];
+              const isSelected = activeTheme === key;
+              const Icon = meta.icon;
+
+              return (
+                <button
+                  key={key}
+                  onClick={() => setActiveTheme(key)}
+                  className={`p-4 rounded-xl border text-left transition-all relative overflow-hidden flex flex-col justify-between ${
+                    isSelected
+                      ? `${meta.border} ${meta.bg} shadow-lg scale-[1.01]`
+                      : 'border-white/10 bg-black/40 hover:border-white/25 hover:bg-black/60 opacity-70 hover:opacity-100'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="p-1.5 rounded-md"
+                        style={{ backgroundColor: `${meta.color}20`, color: meta.color }}
+                      >
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <span className="font-bold text-sm text-white">{meta.label}</span>
+                    </div>
+
+                    {isSelected && (
+                      <span
+                        className="w-2 h-2 rounded-full animate-ping"
+                        style={{ backgroundColor: meta.color }}
+                      />
+                    )}
+                  </div>
+
+                  <p className="text-[11px] text-white/60 font-mono line-clamp-1">
+                    {meta.desc}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* =================================================================
+            2. SUB-SECTION NAVIGATION (PROFILE • PROJECTS • REELS • SKILLS • CUSTOMIZER)
+            ================================================================= */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none border-b border-white/10 font-mono text-xs">
+          {[
+            { id: 'profile', label: '1. IDENTITY & PROFILE', icon: Settings },
+            { id: 'projects', label: '2. PROJECTS CATALOG', icon: FolderGit2 },
+            { id: 'creative', label: '3. REELS & VIDEOS', icon: Clapperboard },
+            { id: 'skills', label: '4. SKILLS & ARSENAL', icon: Sparkles },
+            { id: 'customizer', label: '5. THEME VISUALS', icon: Sliders },
+          ].map((tab) => {
+            const isActive = activeTab === tab.id;
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`px-4 py-2.5 rounded-t-lg font-bold transition-all whitespace-nowrap flex items-center gap-2 border-b-2 ${
+                  isActive
+                    ? 'border-[#00f59b] bg-white/5 text-white'
+                    : 'border-transparent text-white/50 hover:text-white hover:bg-white/[0.02]'
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* =================================================================
+            3. TAB CONTENT PANELS
+            ================================================================= */}
+        
+        {/* ==================== TAB 1: IDENTITY & PROFILE ==================== */}
+        {activeTab === 'profile' && (
+          <div className="bg-[#111116] border border-white/10 rounded-2xl p-6 sm:p-8 space-y-6">
+            
+            <div className="border-b border-white/10 pb-4">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <span>Identity & Bio Settings for</span>
+                <span style={{ color: themeMeta[activeTheme].color }}>
+                  {themeMeta[activeTheme].label}
+                </span>
+              </h2>
+              <p className="text-xs text-white/50 font-mono mt-1">
+                Customize the name, bio, timeline, roles, avatar, and social links specifically shown when this theme is active.
+              </p>
             </div>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-white font-mono">
-              {content.creative.length}
-            </span>
-          </button>
 
-          <button
-            onClick={() => setActiveTab('skills')}
-            className={`w-full px-4 py-3 rounded-[2px] font-mono text-xs uppercase tracking-wider flex items-center justify-between transition-colors text-left ${
-              activeTab === 'skills'
-                ? 'bg-white/10 text-white font-bold border-l-2 border-[#00f59b]'
-                : 'text-muted hover:text-white hover:bg-white/[0.03]'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <Sparkles className="w-4 h-4 text-[#00f59b]" />
-              <span>Skills &amp; Stack</span>
-            </div>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-white font-mono">
-              {content.skills.length}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('academic')}
-            className={`w-full px-4 py-3 rounded-[2px] font-mono text-xs uppercase tracking-wider flex items-center justify-between transition-colors text-left ${
-              activeTab === 'academic'
-                ? 'bg-white/10 text-white font-bold border-l-2 border-[#00f59b]'
-                : 'text-muted hover:text-white hover:bg-white/[0.03]'
-            }`}
-          >
-            <GraduationCap className="w-4 h-4 text-[#00f59b]" />
-            <span>Education &amp; Certs</span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-white font-mono">
-              {content.certifications.length}
-            </span>
-          </button>
-        </aside>
-
-        {/* Content Pane */}
-        <main className="lg:col-span-9 space-y-8">
-          {/* =================================================================
-              TAB 0: THEME GALLERY & DEDICATED WORKSPACE
-              ================================================================= */}
-          {activeTab === 'templates' && (
-            <div className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 font-mono text-xs">
               
-              {/* -------------------------------------------------------------
-                  VIEW A: THEME SELECTION GALLERY (WITH VISUAL PHOTOS)
-                  ------------------------------------------------------------- */}
-              {!isEditingThemeWorkspace ? (
-                <div className="space-y-6">
-                  {/* Gallery Intro Banner */}
-                  <div className="p-6 sm:p-8 bg-white/[0.02] border border-white/[0.08] rounded-[4px] space-y-2">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div>
-                        <h2 className="type-h2 font-black uppercase text-white flex items-center gap-2.5">
-                          <LayoutTemplate className="w-6 h-6 text-[#00f59b]" />
-                          <span>Choose Your Portfolio Theme</span>
-                        </h2>
-                        <p className="font-mono text-xs text-muted pt-1">
-                          Review preview photos for each theme below. Choose a theme to enter its dedicated management studio, customize photos, colors, and content, or set it as the live public default.
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-2 font-mono text-xs bg-black/60 px-3.5 py-2 rounded border border-white/15 whitespace-nowrap">
-                        <span className="text-muted">Live Public Default:</span>
-                        <span className="text-[#00f59b] font-black uppercase">{currentTemplates.activeTemplate}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 3 High-Impact Visual Theme Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                    {/* THEME 1: SYNTAX */}
-                    <div className="bg-[#0c0c10] border border-white/10 hover:border-[#00f59b]/60 rounded-[6px] overflow-hidden flex flex-col justify-between transition-all duration-300 group shadow-lg">
-                      <div>
-                        {/* Theme Photo / Mockup Banner */}
-                        <div className="relative aspect-[16/10] w-full bg-black overflow-hidden border-b border-white/10">
-                          <Image
-                            src="/images/templates/preview-syntax.png"
-                            alt="Syntax Theme Preview"
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                          <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded bg-black/80 backdrop-blur-md border border-[#00f59b]/50 font-mono text-[9px] font-bold text-[#00f59b] uppercase tracking-widest">
-                            CYBER MONOSPACE
-                          </div>
-                          {currentTemplates.activeTemplate === 'syntax' && (
-                            <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded bg-[#00f59b] text-black font-mono text-[9px] font-black uppercase tracking-wider flex items-center gap-1">
-                              <CheckCircle2 className="w-3 h-3" />
-                              <span>LIVE DEFAULT</span>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Description & Specs */}
-                        <div className="p-5 space-y-3">
-                          <div className="flex items-center gap-2 font-mono text-base font-bold text-white">
-                            <Terminal className="w-4 h-4 text-[#00f59b]" />
-                            <span>Syntax</span>
-                          </div>
-                          <p className="font-mono text-xs text-muted leading-relaxed">
-                            A high-precision developer terminal theme featuring green CRT telemetry, monospace typography, and framed dossier layout.
-                          </p>
-                          <div className="pt-2 flex flex-wrap gap-1.5 font-mono text-[10px]">
-                            <span className="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-white/70">CRT Grid</span>
-                            <span className="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-white/70">CLI Accents</span>
-                            <span className="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-white/70">Dossier Viewfinder</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="p-5 pt-0 space-y-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedTemplateToEdit('syntax');
-                            setIsEditingThemeWorkspace(true);
-                          }}
-                          className="w-full py-2.5 bg-white/10 hover:bg-[#00f59b] text-white hover:text-black font-mono text-xs font-bold uppercase tracking-wider rounded transition-colors flex items-center justify-center gap-2"
-                        >
-                          <Sliders className="w-3.5 h-3.5" />
-                          <span>Manage &amp; Customize Theme</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleSetActiveTemplate('syntax')}
-                          className={`w-full py-1.5 font-mono text-[10px] uppercase tracking-wider rounded transition-colors ${
-                            currentTemplates.activeTemplate === 'syntax'
-                              ? 'bg-[#00f59b]/20 text-[#00f59b] border border-[#00f59b]/40 font-bold'
-                              : 'text-muted hover:text-white border border-white/10'
-                          }`}
-                        >
-                          {currentTemplates.activeTemplate === 'syntax' ? '✓ Currently Live Default' : 'Set as Live Public Theme'}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* THEME 2: SPIDER-TECH */}
-                    <div className="bg-[#0c0c10] border border-white/10 hover:border-[#c40c24]/80 rounded-[6px] overflow-hidden flex flex-col justify-between transition-all duration-300 group shadow-lg">
-                      <div>
-                        {/* Theme Photo / Mockup Banner */}
-                        <div className="relative aspect-[16/10] w-full bg-black overflow-hidden border-b border-white/10">
-                          <Image
-                            src="/images/templates/preview-spider.png"
-                            alt="Spider-Tech Theme Preview"
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                          <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded bg-black/80 backdrop-blur-md border border-[#c40c24]/60 font-mono text-[9px] font-bold text-[#c40c24] uppercase tracking-widest">
-                            SPIDER-MAN UNIVERSE
-                          </div>
-                          {currentTemplates.activeTemplate === 'fuel' && (
-                            <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded bg-[#c40c24] text-white font-mono text-[9px] font-black uppercase tracking-wider flex items-center gap-1">
-                              <CheckCircle2 className="w-3 h-3" />
-                              <span>LIVE DEFAULT</span>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Description & Specs */}
-                        <div className="p-5 space-y-3">
-                          <div className="flex items-center gap-2 font-mono text-base font-bold text-white">
-                            <span>🕷️</span>
-                            <span>Spider-Tech</span>
-                          </div>
-                          <p className="font-mono text-xs text-muted leading-relaxed">
-                            Spider-Man Sci-Fi Universe with crawling hardware cursor, hanging Spider-Man at the navbar, and pure white click-to-shoot webs.
-                          </p>
-                          <div className="pt-2 flex flex-wrap gap-1.5 font-mono text-[10px]">
-                            <span className="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-white/70">Slingshot Spidey</span>
-                            <span className="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-white/70">Dark Suit Red</span>
-                            <span className="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-white/70">White Web Canvas</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="p-5 pt-0 space-y-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedTemplateToEdit('spiderTech');
-                            setIsEditingThemeWorkspace(true);
-                          }}
-                          className="w-full py-2.5 bg-white/10 hover:bg-[#c40c24] text-white font-mono text-xs font-bold uppercase tracking-wider rounded transition-colors flex items-center justify-center gap-2"
-                        >
-                          <Sliders className="w-3.5 h-3.5" />
-                          <span>Manage &amp; Customize Theme</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleSetActiveTemplate('fuel')}
-                          className={`w-full py-1.5 font-mono text-[10px] uppercase tracking-wider rounded transition-colors ${
-                            currentTemplates.activeTemplate === 'fuel'
-                              ? 'bg-[#c40c24]/20 text-[#c40c24] border border-[#c40c24]/50 font-bold'
-                              : 'text-muted hover:text-white border border-white/10'
-                          }`}
-                        >
-                          {currentTemplates.activeTemplate === 'fuel' ? '✓ Currently Live Default' : 'Set as Live Public Theme'}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* THEME 3: ERIC COLE */}
-                    <div className="bg-[#0c0c10] border border-white/10 hover:border-white/60 rounded-[6px] overflow-hidden flex flex-col justify-between transition-all duration-300 group shadow-lg">
-                      <div>
-                        {/* Theme Photo / Mockup Banner */}
-                        <div className="relative aspect-[16/10] w-full bg-black overflow-hidden border-b border-white/10">
-                          <Image
-                            src="/images/templates/preview-eric-cole.png"
-                            alt="Eric Cole Theme Preview"
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                          <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded bg-black/80 backdrop-blur-md border border-white/40 font-mono text-[9px] font-bold text-white uppercase tracking-widest">
-                            RETRO CRT EDITORIAL
-                          </div>
-                          {currentTemplates.activeTemplate === 'eric-cole' && (
-                            <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded bg-white text-black font-mono text-[9px] font-black uppercase tracking-wider flex items-center gap-1">
-                              <CheckCircle2 className="w-3 h-3" />
-                              <span>LIVE DEFAULT</span>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Description & Specs */}
-                        <div className="p-5 space-y-3">
-                          <div className="flex items-center gap-2 font-mono text-base font-bold text-white">
-                            <Tv className="w-4 h-4 text-white" />
-                            <span>Eric Cole</span>
-                          </div>
-                          <p className="font-mono text-xs text-muted leading-relaxed">
-                            Vintage 90s CRT TV with horizontal video reel playback, old money serif typography, and tactile channel switcher.
-                          </p>
-                          <div className="pt-2 flex flex-wrap gap-1.5 font-mono text-[10px]">
-                            <span className="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-white/70">CRT TV Reel</span>
-                            <span className="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-white/70">Editorial Serif</span>
-                            <span className="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-white/70">Filmstrip Morph</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="p-5 pt-0 space-y-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedTemplateToEdit('ericCole');
-                            setIsEditingThemeWorkspace(true);
-                          }}
-                          className="w-full py-2.5 bg-white/10 hover:bg-white text-white hover:text-black font-mono text-xs font-bold uppercase tracking-wider rounded transition-colors flex items-center justify-center gap-2"
-                        >
-                          <Sliders className="w-3.5 h-3.5" />
-                          <span>Manage &amp; Customize Theme</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleSetActiveTemplate('eric-cole')}
-                          className={`w-full py-1.5 font-mono text-[10px] uppercase tracking-wider rounded transition-colors ${
-                            currentTemplates.activeTemplate === 'eric-cole'
-                              ? 'bg-white/20 text-white border border-white/50 font-bold'
-                              : 'text-muted hover:text-white border border-white/10'
-                          }`}
-                        >
-                          {currentTemplates.activeTemplate === 'eric-cole' ? '✓ Currently Live Default' : 'Set as Live Public Theme'}
-                        </button>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-              ) : (
-
-                /* -------------------------------------------------------------
-                   VIEW B: DEDICATED THEME MANAGEMENT WORKSPACE
-                   ------------------------------------------------------------- */
-                <div className="space-y-6">
-                  {/* Dedicated Workspace Header Bar */}
-                  <div className="p-5 bg-white/[0.03] border border-white/15 rounded-[4px] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setIsEditingThemeWorkspace(false)}
-                        className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white font-mono text-xs uppercase tracking-wider rounded flex items-center gap-1.5 transition-colors"
-                      >
-                        <ArrowLeft className="w-3.5 h-3.5" />
-                        <span>Back to Gallery</span>
-                      </button>
-
-                      <div className="h-4 w-px bg-white/20" />
-
-                      <div className="flex items-center gap-2 font-mono text-sm font-bold text-white">
-                        {selectedTemplateToEdit === 'syntax' && <Terminal className="w-4 h-4 text-[#00f59b]" />}
-                        {selectedTemplateToEdit === 'spiderTech' && <span>🕷️</span>}
-                        {selectedTemplateToEdit === 'ericCole' && <Tv className="w-4 h-4 text-white" />}
-                        <span>
-                          Managing: {selectedTemplateToEdit === 'syntax' ? 'Syntax (Cyber Terminal)' : selectedTemplateToEdit === 'spiderTech' ? 'Spider-Tech (Spider-Man Universe)' : 'Eric Cole (Vintage CRT TV)'}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3 font-mono text-xs">
-                      {/* Set as Default Button */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const modeMap = {
-                            syntax: 'syntax' as const,
-                            spiderTech: 'fuel' as const,
-                            ericCole: 'eric-cole' as const,
-                          };
-                          handleSetActiveTemplate(modeMap[selectedTemplateToEdit]);
-                        }}
-                        className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded border border-white/20 transition-colors"
-                      >
-                        Set as Active Public Theme
-                      </button>
-
-                      {/* Live Preview Button */}
-                      <Link
-                        href="/"
-                        target="_blank"
-                        className="px-3 py-1.5 bg-[#00f59b]/20 text-[#00f59b] border border-[#00f59b]/50 rounded flex items-center gap-1.5 hover:bg-[#00f59b]/30 transition-colors font-bold"
-                      >
-                        <span>Preview Live</span>
-                        <Eye className="w-3.5 h-3.5" />
-                      </Link>
-                    </div>
-                  </div>
-
-                  {/* =========================================================
-                      1. EDIT SYNTAX THEME
-                      ========================================================= */}
-                  {selectedTemplateToEdit === 'syntax' && (
-                    <div className="p-6 sm:p-8 bg-[#0c0c10] border border-[#00f59b]/40 rounded-[4px] space-y-6 shadow-xl">
-                      <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                        <div>
-                          <h3 className="text-xl font-bold uppercase font-mono text-white flex items-center gap-2">
-                            <Terminal className="w-5 h-5 text-[#00f59b]" />
-                            <span>Syntax Theme Customizer</span>
-                          </h3>
-                          <p className="text-xs font-mono text-muted">Configure color palette, typography headlines, and CRT telemetry.</p>
-                        </div>
-                      </div>
-
-                      {/* Theme Photo / Dossier Management */}
-                      <div className="p-4 bg-black/60 border border-white/10 rounded space-y-3">
-                        <span className="font-mono text-xs uppercase text-white font-bold flex items-center gap-2">
-                          <FileImage className="w-4 h-4 text-[#00f59b]" />
-                          <span>Syntax Dossier Profile Photo</span>
-                        </span>
-                        <div className="flex flex-col sm:flex-row items-center gap-5">
-                          <div className="relative w-44 h-28 bg-black rounded border border-white/20 overflow-hidden">
-                            <Image
-                              src={content.site.portraitImage || '/images/jeet-syntax.png'}
-                              alt="Syntax Profile Preview"
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                          <div className="space-y-2 flex-1 font-mono text-xs">
-                            <p className="text-muted">
-                              Natural 1024:612 aspect ratio recommended for the dossier viewfinder frame.
-                            </p>
-                            <label className="inline-flex items-center gap-2 px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white rounded cursor-pointer transition-colors uppercase text-[11px] font-bold">
-                              <Upload className="w-3.5 h-3.5 text-[#00f59b]" />
-                              <span>Upload New Photo</span>
-                              <input
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                onChange={async (e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) {
-                                    const url = await uploadFile(file, 'portrait');
-                                    if (url) updateSiteField('portraitImage', url);
-                                  }
-                                }}
-                              />
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Core Content Form */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <label className="block font-mono text-xs uppercase text-muted">Accent Neon Color</label>
-                          <div className="flex items-center gap-3">
-                            <input
-                              type="color"
-                              value={currentTemplates.syntax.accentColor || '#00f59b'}
-                              onChange={(e) => handleUpdateTemplate('syntax', 'accentColor', e.target.value)}
-                              className="w-10 h-10 rounded border border-white/20 bg-black cursor-pointer"
-                            />
-                            <input
-                              type="text"
-                              value={currentTemplates.syntax.accentColor || '#00f59b'}
-                              onChange={(e) => handleUpdateTemplate('syntax', 'accentColor', e.target.value)}
-                              className="flex-1 px-3 py-2 bg-black border border-white/15 rounded font-mono text-sm text-white"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="block font-mono text-xs uppercase text-muted">Badge / Category Tag</label>
-                          <input
-                            type="text"
-                            value={currentTemplates.syntax.badge || 'HACKER / CYBER MONOSPACE'}
-                            onChange={(e) => handleUpdateTemplate('syntax', 'badge', e.target.value)}
-                            className="w-full px-3 py-2.5 bg-black border border-white/15 rounded font-mono text-sm text-white focus:outline-none focus:border-[#00f59b]"
-                          />
-                        </div>
-
-                        <div className="space-y-2 sm:col-span-2">
-                          <label className="block font-mono text-xs uppercase text-muted">Hero Main Headline</label>
-                          <input
-                            type="text"
-                            value={currentTemplates.syntax.heroHeadline || 'I BUILD SYSTEMS. I FRAME STORIES.'}
-                            onChange={(e) => handleUpdateTemplate('syntax', 'heroHeadline', e.target.value)}
-                            className="w-full px-3 py-2.5 bg-black border border-white/15 rounded font-mono text-sm text-white focus:outline-none focus:border-[#00f59b]"
-                          />
-                        </div>
-
-                        <div className="space-y-2 sm:col-span-2">
-                          <label className="block font-mono text-xs uppercase text-muted">Hero Subtitle</label>
-                          <input
-                            type="text"
-                            value={currentTemplates.syntax.heroSubtitle || 'Full-Stack Developer & Visual Creator (@j.gaze_)'}
-                            onChange={(e) => handleUpdateTemplate('syntax', 'heroSubtitle', e.target.value)}
-                            className="w-full px-3 py-2.5 bg-black border border-white/15 rounded font-mono text-sm text-white focus:outline-none focus:border-[#00f59b]"
-                          />
-                        </div>
-
-                        <div className="space-y-2 sm:col-span-2">
-                          <label className="block font-mono text-xs uppercase text-muted">Infinite Marquee Ticker Strip</label>
-                          <input
-                            type="text"
-                            value={currentTemplates.syntax.marqueeText || 'REACT 19 • NEXT.JS 14 • FASTAPI • PYTHON • AI INTEGRATION • TAILWIND CSS'}
-                            onChange={(e) => handleUpdateTemplate('syntax', 'marqueeText', e.target.value)}
-                            className="w-full px-3 py-2.5 bg-black border border-white/15 rounded font-mono text-sm text-white focus:outline-none focus:border-[#00f59b]"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="pt-4 border-t border-white/10 flex flex-wrap gap-6 font-mono text-xs">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={currentTemplates.syntax.showScanlines}
-                            onChange={(e) => handleUpdateTemplate('syntax', 'showScanlines', e.target.checked)}
-                            className="accent-[#00f59b] w-4 h-4 rounded"
-                          />
-                          <span>CRT Scanlines Effect</span>
-                        </label>
-
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={currentTemplates.syntax.customCursor}
-                            onChange={(e) => handleUpdateTemplate('syntax', 'customCursor', e.target.checked)}
-                            className="accent-[#00f59b] w-4 h-4 rounded"
-                          />
-                          <span>Custom Cyber Pointer Cursor</span>
-                        </label>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* =========================================================
-                      2. EDIT SPIDER-TECH THEME
-                      ========================================================= */}
-                  {selectedTemplateToEdit === 'spiderTech' && (
-                    <div className="p-6 sm:p-8 bg-[#0c0c10] border border-[#c40c24]/60 rounded-[4px] space-y-6 shadow-xl">
-                      <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                        <div>
-                          <h3 className="text-xl font-bold uppercase font-mono text-white flex items-center gap-2">
-                            <span>🕷️</span>
-                            <span>Spider-Tech Theme Customizer</span>
-                          </h3>
-                          <p className="text-xs font-mono text-muted">Spider-Man Sci-Fi Universe, Web Physics, and Character Controls</p>
-                        </div>
-                      </div>
-
-                      {/* Character & Visual Assets Card */}
-                      <div className="p-4 bg-black/60 border border-white/10 rounded space-y-3">
-                        <span className="font-mono text-xs uppercase text-white font-bold flex items-center gap-2">
-                          <FileImage className="w-4 h-4 text-[#c40c24]" />
-                          <span>Hanging Spider-Man Character Asset</span>
-                        </span>
-                        <div className="flex flex-col sm:flex-row items-center gap-5">
-                          <div className="relative w-24 h-36 bg-black rounded border border-white/20 overflow-hidden flex items-center justify-center">
-                            <Image
-                              src="/images/spiderman-body.png"
-                              alt="Hanging Spidey Character"
-                              fill
-                              className="object-contain"
-                            />
-                          </div>
-                          <div className="space-y-2 flex-1 font-mono text-xs">
-                            <p className="text-muted">
-                              Interactive hanging &amp; slingshot Spider-Man asset suspended from the navbar with twisted braided web physics.
-                            </p>
-                            <label className="inline-flex items-center gap-2 px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white rounded cursor-pointer transition-colors uppercase text-[11px] font-bold">
-                              <Upload className="w-3.5 h-3.5 text-[#c40c24]" />
-                              <span>Upload New Spidey Cutout (.png)</span>
-                              <input
-                                type="file"
-                                accept="image/png"
-                                className="hidden"
-                                onChange={async (e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) {
-                                    await uploadFile(file, 'image');
-                                  }
-                                }}
-                              />
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Content & Taglines */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <label className="block font-mono text-xs uppercase text-muted">Spider-Man Suit Crimson Color</label>
-                          <div className="flex items-center gap-3">
-                            <input
-                              type="color"
-                              value={currentTemplates.spiderTech.suitColor || '#c40c24'}
-                              onChange={(e) => handleUpdateTemplate('spiderTech', 'suitColor', e.target.value)}
-                              className="w-10 h-10 rounded border border-white/20 bg-black cursor-pointer"
-                            />
-                            <input
-                              type="text"
-                              value={currentTemplates.spiderTech.suitColor || '#c40c24'}
-                              onChange={(e) => handleUpdateTemplate('spiderTech', 'suitColor', e.target.value)}
-                              className="flex-1 px-3 py-2 bg-black border border-white/15 rounded font-mono text-sm text-white"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="block font-mono text-xs uppercase text-muted">Hero Main Name</label>
-                          <input
-                            type="text"
-                            value={currentTemplates.spiderTech.heroTitle || 'JEET RAKHOLIYA'}
-                            onChange={(e) => handleUpdateTemplate('spiderTech', 'heroTitle', e.target.value)}
-                            className="w-full px-3 py-2.5 bg-black border border-white/15 rounded font-mono text-sm text-white focus:outline-none focus:border-[#c40c24]"
-                          />
-                        </div>
-
-                        <div className="space-y-2 sm:col-span-2">
-                          <label className="block font-mono text-xs uppercase text-muted">Spider-Man Tagline</label>
-                          <input
-                            type="text"
-                            value={currentTemplates.spiderTech.heroTagline || 'WHO ARE YOU UNDER THE MASK?'}
-                            onChange={(e) => handleUpdateTemplate('spiderTech', 'heroTagline', e.target.value)}
-                            className="w-full px-3 py-2.5 bg-black border border-white/15 rounded font-mono text-sm text-white focus:outline-none focus:border-[#c40c24]"
-                          />
-                        </div>
-
-                        <div className="space-y-2 sm:col-span-2">
-                          <label className="block font-mono text-xs uppercase text-muted">Hero Mission Statement</label>
-                          <textarea
-                            rows={2}
-                            value={currentTemplates.spiderTech.heroMission}
-                            onChange={(e) => handleUpdateTemplate('spiderTech', 'heroMission', e.target.value)}
-                            className="w-full px-3 py-2.5 bg-black border border-white/15 rounded font-mono text-xs text-white focus:outline-none focus:border-[#c40c24]"
-                          />
-                        </div>
-
-                        <div className="space-y-2 sm:col-span-2">
-                          <label className="block font-mono text-xs uppercase text-muted">Classified Manifesto Protocol Quote</label>
-                          <textarea
-                            rows={2}
-                            value={currentTemplates.spiderTech.manifesto}
-                            onChange={(e) => handleUpdateTemplate('spiderTech', 'manifesto', e.target.value)}
-                            className="w-full px-3 py-2.5 bg-black border border-white/15 rounded font-mono text-xs text-white focus:outline-none focus:border-[#c40c24]"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="pt-4 border-t border-white/10 flex flex-wrap gap-6 font-mono text-xs">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={currentTemplates.spiderTech.hangingSpiderman}
-                            onChange={(e) => handleUpdateTemplate('spiderTech', 'hangingSpiderman', e.target.checked)}
-                            className="accent-[#c40c24] w-4 h-4 rounded"
-                          />
-                          <span>Hanging &amp; Slingshot Spider-Man at Navbar</span>
-                        </label>
-
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={currentTemplates.spiderTech.interactiveWebs}
-                            onChange={(e) => handleUpdateTemplate('spiderTech', 'interactiveWebs', e.target.checked)}
-                            className="accent-[#c40c24] w-4 h-4 rounded"
-                          />
-                          <span>Click-to-Shoot Pure White Web Physics</span>
-                        </label>
-
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={currentTemplates.spiderTech.backgroundWebNets}
-                            onChange={(e) => handleUpdateTemplate('spiderTech', 'backgroundWebNets', e.target.checked)}
-                            className="accent-[#c40c24] w-4 h-4 rounded"
-                          />
-                          <span>Background Spider Web Nets</span>
-                        </label>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* =========================================================
-                      3. EDIT ERIC COLE THEME
-                      ========================================================= */}
-                  {selectedTemplateToEdit === 'ericCole' && (
-                    <div className="p-6 sm:p-8 bg-[#0c0c10] border border-white/50 rounded-[4px] space-y-6 shadow-xl">
-                      <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                        <div>
-                          <h3 className="text-xl font-bold uppercase font-mono text-white flex items-center gap-2">
-                            <Tv className="w-5 h-5 text-white" />
-                            <span>Eric Cole Theme Customizer</span>
-                          </h3>
-                          <p className="text-xs font-mono text-muted">90s Vintage CRT TV, Video Reel Playback, and Editorial Typography</p>
-                        </div>
-                      </div>
-
-                      {/* Video Reel Upload & TV Media */}
-                      <div className="p-4 bg-black/60 border border-white/10 rounded space-y-3">
-                        <span className="font-mono text-xs uppercase text-white font-bold flex items-center gap-2">
-                          <Film className="w-4 h-4 text-white" />
-                          <span>Vintage CRT TV Video Reel Showcase</span>
-                        </span>
-                        <div className="flex flex-col sm:flex-row items-center gap-5">
-                          <div className="relative w-44 h-28 bg-black rounded border border-white/20 overflow-hidden flex items-center justify-center">
-                            <video
-                              src={currentTemplates.ericCole.videoSrc || '/images/IMG_1935.MOV'}
-                              muted
-                              loop
-                              playsInline
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <div className="space-y-2 flex-1 font-mono text-xs">
-                            <p className="text-muted">
-                              Video plays inside the retro TV bezel on scroll. Support for .mp4, .mov, and .webm formats.
-                            </p>
-                            <div className="flex items-center gap-3">
-                              <input
-                                type="text"
-                                value={currentTemplates.ericCole.videoSrc || '/images/IMG_1935.MOV'}
-                                onChange={(e) => handleUpdateTemplate('ericCole', 'videoSrc', e.target.value)}
-                                className="flex-1 px-3 py-2 bg-black border border-white/15 rounded text-white"
-                              />
-                              <label className="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white rounded cursor-pointer transition-colors uppercase text-[11px] font-bold whitespace-nowrap flex items-center gap-1.5">
-                                <Upload className="w-3.5 h-3.5" />
-                                <span>Upload Reel</span>
-                                <input
-                                  type="file"
-                                  accept="video/*"
-                                  className="hidden"
-                                  onChange={async (e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) {
-                                      const url = await uploadFile(file, 'video');
-                                      if (url) handleUpdateTemplate('ericCole', 'videoSrc', url);
-                                    }
-                                  }}
-                                />
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Content Headlines */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <label className="block font-mono text-xs uppercase text-muted">Hero Title</label>
-                          <input
-                            type="text"
-                            value={currentTemplates.ericCole.heroTitle || 'ERIC COLE'}
-                            onChange={(e) => handleUpdateTemplate('ericCole', 'heroTitle', e.target.value)}
-                            className="w-full px-3 py-2.5 bg-black border border-white/15 rounded font-mono text-sm text-white focus:outline-none focus:border-white"
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="block font-mono text-xs uppercase text-muted">TV Channel Label</label>
-                          <input
-                            type="text"
-                            value={currentTemplates.ericCole.tvChannel || 'CH 04 • J.GAZE_ EDITORIAL'}
-                            onChange={(e) => handleUpdateTemplate('ericCole', 'tvChannel', e.target.value)}
-                            className="w-full px-3 py-2.5 bg-black border border-white/15 rounded font-mono text-sm text-white focus:outline-none focus:border-white"
-                          />
-                        </div>
-
-                        <div className="space-y-2 sm:col-span-2">
-                          <label className="block font-mono text-xs uppercase text-muted">Editorial Subtitle</label>
-                          <input
-                            type="text"
-                            value={currentTemplates.ericCole.heroSubtitle || 'Editorial Portfolio of Jeet Rakholiya'}
-                            onChange={(e) => handleUpdateTemplate('ericCole', 'heroSubtitle', e.target.value)}
-                            className="w-full px-3 py-2.5 bg-black border border-white/15 rounded font-mono text-sm text-white focus:outline-none focus:border-white"
-                          />
-                        </div>
-
-                        <div className="space-y-2 sm:col-span-2">
-                          <label className="block font-mono text-xs uppercase text-muted">Editorial About Headline</label>
-                          <input
-                            type="text"
-                            value={currentTemplates.ericCole.aboutHeadline || 'A Visual Storyteller in Code and Cinematography'}
-                            onChange={(e) => handleUpdateTemplate('ericCole', 'aboutHeadline', e.target.value)}
-                            className="w-full px-3 py-2.5 bg-black border border-white/15 rounded font-mono text-sm text-white focus:outline-none focus:border-white"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="pt-4 border-t border-white/10 flex flex-wrap gap-6 font-mono text-xs">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={currentTemplates.ericCole.soundEnabled}
-                            onChange={(e) => handleUpdateTemplate('ericCole', 'soundEnabled', e.target.checked)}
-                            className="accent-white w-4 h-4 rounded"
-                          />
-                          <span>TV Audio &amp; CRT Static Sound Control</span>
-                        </label>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* =================================================================
-              TAB 1: PROFILE & HERO CONFIGURATION
-              ================================================================= */}
-          {activeTab === 'profile' && (
-            <div className="p-6 sm:p-8 bg-white/[0.02] border border-white/[0.08] rounded-[2px] space-y-6">
-              <div className="border-b border-white/[0.08] pb-4">
-                <h2 className="type-h2 font-black uppercase text-white">Hero &amp; Profile Setup</h2>
-                <p className="font-mono text-xs text-muted">Update names, headline titles, quotes, and portrait photo.</p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="block font-mono text-xs uppercase text-muted">Full Name</label>
-                  <input
-                    type="text"
-                    value={content.site.name}
-                    onChange={(e) => updateSiteField('name', e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#0c0c10] border border-white/15 rounded-[2px] font-mono text-sm text-white focus:outline-none focus:border-[#00f59b]"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block font-mono text-xs uppercase text-muted">Creative Brand Tag</label>
-                  <input
-                    type="text"
-                    value={content.site.creativeName}
-                    onChange={(e) => updateSiteField('creativeName', e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#0c0c10] border border-white/15 rounded-[2px] font-mono text-sm text-white focus:outline-none focus:border-[#00f59b]"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block font-mono text-xs uppercase text-muted">Availability Status</label>
-                  <input
-                    type="text"
-                    value={content.site.availability}
-                    onChange={(e) => updateSiteField('availability', e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#0c0c10] border border-white/15 rounded-[2px] font-mono text-sm text-white focus:outline-none focus:border-[#00f59b]"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block font-mono text-xs uppercase text-muted">Location</label>
-                  <input
-                    type="text"
-                    value={content.site.location}
-                    onChange={(e) => updateSiteField('location', e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#0c0c10] border border-white/15 rounded-[2px] font-mono text-sm text-white focus:outline-none focus:border-[#00f59b]"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block font-mono text-xs uppercase text-muted">Hero Timeline Tag (Left)</label>
-                  <input
-                    type="text"
-                    value={content.site.heroTimeline}
-                    onChange={(e) => updateSiteField('heroTimeline', e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#0c0c10] border border-white/15 rounded-[2px] font-mono text-sm text-white focus:outline-none focus:border-[#00f59b]"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block font-mono text-xs uppercase text-muted">Hero Academic Standing</label>
-                  <input
-                    type="text"
-                    value={content.site.heroAcademic}
-                    onChange={(e) => updateSiteField('heroAcademic', e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#0c0c10] border border-white/15 rounded-[2px] font-mono text-sm text-white focus:outline-none focus:border-[#00f59b]"
-                  />
-                </div>
-              </div>
-
-              {/* Philosophy Quote */}
-              <div className="space-y-2">
-                <label className="block font-mono text-xs uppercase text-muted">Hero Philosophy Quote (Framed Glass Box)</label>
-                <textarea
-                  rows={3}
-                  value={content.site.heroQuote}
-                  onChange={(e) => updateSiteField('heroQuote', e.target.value)}
-                  className="w-full px-3 py-2.5 bg-[#0c0c10] border border-white/15 rounded-[2px] font-mono text-xs text-white focus:outline-none focus:border-[#00f59b]"
-                />
-              </div>
-
-              {/* Subtitle */}
-              <div className="space-y-2">
-                <label className="block font-mono text-xs uppercase text-muted">Hero Subtitle Under Name</label>
+              {/* Name */}
+              <div className="space-y-1.5">
+                <label className="text-white/70 block uppercase font-bold">Name</label>
                 <input
                   type="text"
-                  value={content.site.heroSubtitle}
-                  onChange={(e) => updateSiteField('heroSubtitle', e.target.value)}
-                  className="w-full px-3 py-2.5 bg-[#0c0c10] border border-white/15 rounded-[2px] font-mono text-sm text-white focus:outline-none focus:border-[#00f59b]"
+                  value={activeProfile.site.name || ''}
+                  onChange={(e) =>
+                    updateActiveProfile((prev) => ({
+                      ...prev,
+                      site: { ...prev.site, name: e.target.value },
+                    }))
+                  }
+                  placeholder="e.g. Jeet Rakholiya / Spider-Man"
+                  className="w-full px-4 py-2.5 bg-black/60 border border-white/15 rounded-lg text-white font-sans text-sm focus:outline-none focus:border-[#00f59b]"
                 />
               </div>
 
-              {/* Portrait Photo Upload */}
-              <div className="pt-4 border-t border-white/[0.08] space-y-4">
-                <label className="block font-mono text-xs uppercase text-white font-bold">
-                  Background Portrait Photo
-                </label>
-                <div className="flex flex-col sm:flex-row items-center gap-6 p-4 bg-[#0c0c10] border border-white/10 rounded-[2px]">
-                  <div className="relative w-40 h-24 sm:w-48 sm:h-28 overflow-hidden rounded-[2px] bg-black border border-white/15">
+              {/* Creative Name / Alter Ego */}
+              <div className="space-y-1.5">
+                <label className="text-white/70 block uppercase font-bold">Creative Alias / Alter Ego</label>
+                <input
+                  type="text"
+                  value={activeProfile.site.creativeName || ''}
+                  onChange={(e) =>
+                    updateActiveProfile((prev) => ({
+                      ...prev,
+                      site: { ...prev.site, creativeName: e.target.value },
+                    }))
+                  }
+                  placeholder="e.g. J.GAZE_ / PETER PARKER"
+                  className="w-full px-4 py-2.5 bg-black/60 border border-white/15 rounded-lg text-white font-sans text-sm focus:outline-none focus:border-[#00f59b]"
+                />
+              </div>
+
+              {/* Primary Role */}
+              <div className="space-y-1.5">
+                <label className="text-white/70 block uppercase font-bold">Primary Role</label>
+                <input
+                  type="text"
+                  value={activeProfile.site.primaryRole || ''}
+                  onChange={(e) =>
+                    updateActiveProfile((prev) => ({
+                      ...prev,
+                      site: { ...prev.site, primaryRole: e.target.value },
+                    }))
+                  }
+                  placeholder="e.g. Full-Stack Developer / Creative Director"
+                  className="w-full px-4 py-2.5 bg-black/60 border border-white/15 rounded-lg text-white font-sans text-sm focus:outline-none focus:border-[#00f59b]"
+                />
+              </div>
+
+              {/* Page Title Tag */}
+              <div className="space-y-1.5">
+                <label className="text-white/70 block uppercase font-bold">Page Title / SEO Headline</label>
+                <input
+                  type="text"
+                  value={activeProfile.site.title || ''}
+                  onChange={(e) =>
+                    updateActiveProfile((prev) => ({
+                      ...prev,
+                      site: { ...prev.site, title: e.target.value },
+                    }))
+                  }
+                  placeholder="e.g. Jeet Rakholiya — Full-Stack Developer"
+                  className="w-full px-4 py-2.5 bg-black/60 border border-white/15 rounded-lg text-white font-sans text-sm focus:outline-none focus:border-[#00f59b]"
+                />
+              </div>
+
+              {/* Hero Subtitle */}
+              <div className="space-y-1.5 md:col-span-2">
+                <label className="text-white/70 block uppercase font-bold">Hero Subtitle / Tagline</label>
+                <input
+                  type="text"
+                  value={activeProfile.site.heroSubtitle || ''}
+                  onChange={(e) =>
+                    updateActiveProfile((prev) => ({
+                      ...prev,
+                      site: { ...prev.site, heroSubtitle: e.target.value },
+                    }))
+                  }
+                  placeholder="e.g. Full-Stack Developer & Visual Creator (@j.gaze_), based in Gujarat, India"
+                  className="w-full px-4 py-2.5 bg-black/60 border border-white/15 rounded-lg text-white font-sans text-sm focus:outline-none focus:border-[#00f59b]"
+                />
+              </div>
+
+              {/* Hero Quote / Manifesto */}
+              <div className="space-y-1.5 md:col-span-2">
+                <label className="text-white/70 block uppercase font-bold">Theme Manifesto / Quote</label>
+                <textarea
+                  rows={3}
+                  value={activeProfile.site.heroQuote || ''}
+                  onChange={(e) =>
+                    updateActiveProfile((prev) => ({
+                      ...prev,
+                      site: { ...prev.site, heroQuote: e.target.value },
+                    }))
+                  }
+                  placeholder="Describe your philosophy or mission statement for this theme..."
+                  className="w-full px-4 py-2.5 bg-black/60 border border-white/15 rounded-lg text-white font-sans text-sm focus:outline-none focus:border-[#00f59b] resize-none"
+                />
+              </div>
+
+              {/* Portrait Image URL & Upload */}
+              <div className="space-y-1.5 md:col-span-2">
+                <label className="text-white/70 block uppercase font-bold">Portrait Image / Avatar</label>
+                <div className="flex items-center gap-4">
+                  <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-black/60 border border-white/20 flex-shrink-0">
                     <Image
-                      src={content.site.portraitImage || '/images/jeet-syntax.png'}
-                      alt="Portrait preview"
+                      src={activeProfile.site.portraitImage || '/images/jeet-syntax.png'}
+                      alt="Avatar"
                       fill
                       className="object-cover"
                     />
                   </div>
-                  <div className="space-y-2 flex-1">
-                    <span className="font-mono text-xs text-muted block">
-                      Current Path: <code className="text-white/90">{content.site.portraitImage}</code>
-                    </span>
-                    <label className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-mono text-xs uppercase tracking-wider rounded-[2px] cursor-pointer transition-colors">
-                      <Upload className="w-3.5 h-3.5 text-[#00f59b]" />
-                      <span>Upload New Portrait (.png / .jpg)</span>
+                  <div className="flex-1 space-y-2">
+                    <input
+                      type="text"
+                      value={activeProfile.site.portraitImage || ''}
+                      onChange={(e) =>
+                        updateActiveProfile((prev) => ({
+                          ...prev,
+                          site: { ...prev.site, portraitImage: e.target.value },
+                        }))
+                      }
+                      placeholder="/images/your-photo.png"
+                      className="w-full px-4 py-2 bg-black/60 border border-white/15 rounded-lg text-white font-sans text-xs focus:outline-none focus:border-[#00f59b]"
+                    />
+                    <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-md text-[11px] font-mono cursor-pointer transition-all">
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Upload Avatar</span>
                       <input
                         type="file"
                         accept="image/*"
                         className="hidden"
                         onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            const url = await uploadFile(file, 'portrait');
-                            if (url) updateSiteField('portraitImage', url);
+                          if (e.target.files && e.target.files[0]) {
+                            const url = await uploadFile(e.target.files[0], 'portrait');
+                            if (url) {
+                              updateActiveProfile((prev) => ({
+                                ...prev,
+                                site: { ...prev.site, portraitImage: url },
+                              }));
+                            }
                           }
                         }}
                       />
@@ -1329,734 +711,859 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              {/* Contact Links */}
-              <div className="pt-4 border-t border-white/[0.08] space-y-4">
-                <span className="block font-mono text-xs uppercase text-white font-bold">Social &amp; Contact Coordinates</span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block font-mono text-[10px] uppercase text-muted mb-1">Email</label>
-                    <input
-                      type="email"
-                      value={content.site.email}
-                      onChange={(e) => updateSiteField('email', e.target.value)}
-                      className="w-full px-3 py-2 bg-[#0c0c10] border border-white/15 rounded-[2px] font-mono text-xs text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-mono text-[10px] uppercase text-muted mb-1">GitHub URL</label>
-                    <input
-                      type="text"
-                      value={content.site.github}
-                      onChange={(e) => updateSiteField('github', e.target.value)}
-                      className="w-full px-3 py-2 bg-[#0c0c10] border border-white/15 rounded-[2px] font-mono text-xs text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-mono text-[10px] uppercase text-muted mb-1">LinkedIn URL</label>
-                    <input
-                      type="text"
-                      value={content.site.linkedin}
-                      onChange={(e) => updateSiteField('linkedin', e.target.value)}
-                      className="w-full px-3 py-2 bg-[#0c0c10] border border-white/15 rounded-[2px] font-mono text-xs text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-mono text-[10px] uppercase text-muted mb-1">Instagram URL</label>
-                    <input
-                      type="text"
-                      value={content.site.instagram}
-                      onChange={(e) => updateSiteField('instagram', e.target.value)}
-                      className="w-full px-3 py-2 bg-[#0c0c10] border border-white/15 rounded-[2px] font-mono text-xs text-white"
-                    />
-                  </div>
-                </div>
+              {/* Email & Location */}
+              <div className="space-y-1.5">
+                <label className="text-white/70 block uppercase font-bold">Contact Email</label>
+                <input
+                  type="email"
+                  value={activeProfile.site.email || ''}
+                  onChange={(e) =>
+                    updateActiveProfile((prev) => ({
+                      ...prev,
+                      site: { ...prev.site, email: e.target.value },
+                    }))
+                  }
+                  className="w-full px-4 py-2.5 bg-black/60 border border-white/15 rounded-lg text-white font-sans text-sm focus:outline-none focus:border-[#00f59b]"
+                />
               </div>
-            </div>
-          )}
 
-          {/* =================================================================
-              TAB 2: PROJECTS STUDIO
-              ================================================================= */}
-          {activeTab === 'projects' && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between p-6 bg-white/[0.02] border border-white/[0.08] rounded-[2px]">
-                <div>
-                  <h2 className="type-h2 font-black uppercase text-white">Projects Studio</h2>
-                  <p className="font-mono text-xs text-muted">Manage showcase software artifacts &amp; technical builds.</p>
-                </div>
-                <button
-                  onClick={() => {
-                    setEditingProject({
-                      id: `project-${Date.now()}`,
-                      slug: `project-${Date.now()}`,
-                      title: 'New Project',
-                      category: 'Full-Stack',
-                      shortDescription: 'Brief summary of the build',
-                      description: 'Comprehensive project architecture details.',
-                      year: '2025',
-                      technologies: ['React', 'Next.js', 'TypeScript'],
-                      status: 'Live Deployment',
-                      featured: true,
-                      order: content.projects.length + 1,
-                    });
-                    setIsNewProject(true);
-                  }}
-                  className="px-4 py-2 bg-[#00f59b] text-[#09090b] font-bold font-mono text-xs uppercase tracking-wider rounded-[2px] hover:bg-[#00f59b]/90 transition-colors flex items-center gap-1.5"
+              <div className="space-y-1.5">
+                <label className="text-white/70 block uppercase font-bold">Location</label>
+                <input
+                  type="text"
+                  value={activeProfile.site.location || ''}
+                  onChange={(e) =>
+                    updateActiveProfile((prev) => ({
+                      ...prev,
+                      site: { ...prev.site, location: e.target.value },
+                    }))
+                  }
+                  className="w-full px-4 py-2.5 bg-black/60 border border-white/15 rounded-lg text-white font-sans text-sm focus:outline-none focus:border-[#00f59b]"
+                />
+              </div>
+
+              {/* Social Links: GitHub, LinkedIn, Instagram */}
+              <div className="space-y-1.5">
+                <label className="text-white/70 block uppercase font-bold">GitHub Profile URL</label>
+                <input
+                  type="text"
+                  value={activeProfile.site.github || ''}
+                  onChange={(e) =>
+                    updateActiveProfile((prev) => ({
+                      ...prev,
+                      site: { ...prev.site, github: e.target.value },
+                    }))
+                  }
+                  className="w-full px-4 py-2.5 bg-black/60 border border-white/15 rounded-lg text-white font-sans text-sm focus:outline-none focus:border-[#00f59b]"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-white/70 block uppercase font-bold">LinkedIn Profile URL</label>
+                <input
+                  type="text"
+                  value={activeProfile.site.linkedin || ''}
+                  onChange={(e) =>
+                    updateActiveProfile((prev) => ({
+                      ...prev,
+                      site: { ...prev.site, linkedin: e.target.value },
+                    }))
+                  }
+                  className="w-full px-4 py-2.5 bg-black/60 border border-white/15 rounded-lg text-white font-sans text-sm focus:outline-none focus:border-[#00f59b]"
+                />
+              </div>
+
+            </div>
+
+          </div>
+        )}
+
+        {/* ==================== TAB 2: PROJECTS CATALOG ==================== */}
+        {activeTab === 'projects' && (
+          <div className="bg-[#111116] border border-white/10 rounded-2xl p-6 sm:p-8 space-y-6">
+            
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+              <div>
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <span>Projects Featured in</span>
+                  <span style={{ color: themeMeta[activeTheme].color }}>
+                    {themeMeta[activeTheme].label}
+                  </span>
+                </h2>
+                <p className="text-xs text-white/50 font-mono mt-1">
+                  Manage the project catalog specifically displayed when this theme is active.
+                </p>
+              </div>
+
+              <button
+                onClick={() => {
+                  setEditingProject({
+                    id: `project-${Date.now()}`,
+                    slug: `project-${Date.now()}`,
+                    title: 'New Project',
+                    category: 'Full-Stack / AI',
+                    shortDescription: 'Short summary of the project architecture and features.',
+                    description: 'Detailed description of the project, stack, and impact.',
+                    year: '2025',
+                    role: 'Lead Architecture',
+                    status: 'Live Deployment',
+                    timeline: '2025',
+                    technologies: ['React.js', 'Next.js', 'TypeScript', 'Tailwind CSS'],
+                    image: '/images/projects/learnwise.svg',
+                    thumbnail: '/images/projects/learnwise.svg',
+                    liveUrl: '',
+                    githubUrl: '',
+                    featured: true,
+                    order: (activeProfile.projects?.length || 0) + 1,
+                  });
+                  setIsNewProject(true);
+                }}
+                className="px-4 py-2 bg-[#00f59b] hover:bg-[#00f59b]/90 text-black font-mono text-xs font-bold rounded-lg flex items-center gap-2 transition-all shadow-md"
+              >
+                <Plus className="w-4 h-4" />
+                <span>ADD PROJECT TO {themeMeta[activeTheme].label.toUpperCase()}</span>
+              </button>
+            </div>
+
+            {/* Projects Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {(activeProfile.projects || []).map((project, idx) => (
+                <div
+                  key={project.id || idx}
+                  className="bg-black/50 border border-white/15 rounded-xl p-4 flex flex-col justify-between hover:border-white/40 transition-all group"
                 >
-                  <Plus className="w-4 h-4" />
-                  <span>Add Project</span>
-                </button>
-              </div>
-
-              {/* Projects List Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {content.projects.map((proj, idx) => (
-                  <div
-                    key={proj.id || idx}
-                    className="p-5 bg-white/[0.02] border border-white/[0.08] hover:border-white/20 rounded-[2px] space-y-4 flex flex-col justify-between transition-all"
-                  >
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between font-mono text-[10px] text-muted uppercase">
-                        <span className="text-[#00f59b]">{proj.category}</span>
-                        <span>{proj.year}</span>
-                      </div>
-                      <h3 className="type-h3 font-bold text-white">{proj.title}</h3>
-                      <p className="font-mono text-xs text-muted line-clamp-2">{proj.description}</p>
+                  <div className="space-y-3">
+                    <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-black/80 border border-white/10">
+                      <Image
+                        src={project.image || project.thumbnail || '/images/projects/learnwise.svg'}
+                        alt={project.title}
+                        fill
+                        className="object-cover"
+                      />
                     </div>
 
-                    <div className="space-y-3 pt-3 border-t border-white/[0.06]">
-                      <div className="flex flex-wrap gap-1.5">
-                        {proj.technologies?.slice(0, 4).map((tech) => (
-                          <span key={tech} className="px-2 py-0.5 bg-white/[0.05] rounded-[2px] font-mono text-[10px] text-white/80">
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-
-                      <div className="flex items-center justify-end gap-2 pt-2">
-                        <button
-                          onClick={() => {
-                            setEditingProject({ ...proj });
-                            setIsNewProject(false);
-                          }}
-                          className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white font-mono text-xs uppercase tracking-wider rounded-[2px] transition-colors"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (confirm(`Delete project "${proj.title}"?`)) {
-                              setContent({
-                                ...content,
-                                projects: content.projects.filter((_, i) => i !== idx),
-                              });
-                            }
-                          }}
-                          className="p-1.5 text-muted hover:text-red-400 transition-colors"
-                          title="Delete Project"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* =================================================================
-              TAB 3: CREATIVE / J.GAZE_ REELS
-              ================================================================= */}
-          {activeTab === 'creative' && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between p-6 bg-white/[0.02] border border-white/[0.08] rounded-[2px]">
-                <div>
-                  <h2 className="type-h2 font-black uppercase text-white">J.GAZE_ Video Reels</h2>
-                  <p className="font-mono text-xs text-muted">Manage cinematography showcases, video URLs, and metadata.</p>
-                </div>
-                <button
-                  onClick={() => {
-                    setEditingCreative({
-                      id: `creative-${Date.now()}`,
-                      title: 'Cinematic Reel',
-                      category: 'Cinematography',
-                      description: 'Visual cinematography project showcasing composition and grading.',
-                      year: '2025',
-                      role: 'Director & Editor',
-                      orientation: 'vertical',
-                      video: '/videos/reel-1.mp4',
-                      featured: true,
-                      order: content.creative.length + 1,
-                    });
-                    setIsNewCreative(true);
-                  }}
-                  className="px-4 py-2 bg-[#00f59b] text-[#09090b] font-bold font-mono text-xs uppercase tracking-wider rounded-[2px] hover:bg-[#00f59b]/90 transition-colors flex items-center gap-1.5"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Add Reel</span>
-                </button>
-              </div>
-
-              {/* Creative Works Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {content.creative.map((item, idx) => (
-                  <div
-                    key={item.id || idx}
-                    className="p-4 bg-white/[0.02] border border-white/[0.08] hover:border-white/20 rounded-[2px] space-y-3 flex flex-col justify-between"
-                  >
-                    <div className="space-y-2">
-                      <div className="relative aspect-[9/14] w-full rounded-[2px] overflow-hidden bg-black border border-white/10 flex items-center justify-center">
-                        {item.video ? (
-                          <video
-                            src={item.video}
-                            muted
-                            loop
-                            playsInline
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <Film className="w-8 h-8 text-muted" />
-                        )}
-                        <span className="absolute top-2 right-2 px-1.5 py-0.5 bg-black/80 font-mono text-[9px] text-[#00f59b] rounded">
-                          {item.orientation || '9:16'}
-                        </span>
-                      </div>
-
-                      <h3 className="font-mono text-sm font-bold text-white truncate">{item.title}</h3>
-                      <p className="font-mono text-[11px] text-muted line-clamp-2">{item.description}</p>
-                    </div>
-
-                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/[0.06]">
-                      <button
-                        onClick={() => {
-                          setEditingCreative({ ...item });
-                          setIsNewCreative(false);
-                        }}
-                        className="px-3 py-1 bg-white/10 hover:bg-white/20 text-white font-mono text-xs uppercase rounded-[2px] transition-colors"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => {
-                          if (confirm(`Delete creative reel "${item.title}"?`)) {
-                            setContent({
-                              ...content,
-                              creative: content.creative.filter((_, i) => i !== idx),
-                            });
-                          }
-                        }}
-                        className="p-1 text-muted hover:text-red-400 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* =================================================================
-              TAB 4: SKILLS & TECHNICAL ARSENAL
-              ================================================================= */}
-          {activeTab === 'skills' && (
-            <div className="p-6 sm:p-8 bg-white/[0.02] border border-white/[0.08] rounded-[2px] space-y-6">
-              <div className="border-b border-white/[0.08] pb-4">
-                <h2 className="type-h2 font-black uppercase text-white">Skills &amp; Technical Stack</h2>
-                <p className="font-mono text-xs text-muted">Add, categorize, and organize programming languages and frameworks.</p>
-              </div>
-
-              {/* Add New Skill Form */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end p-4 bg-[#0c0c10] border border-white/10 rounded-[2px]">
-                <div className="sm:col-span-4 space-y-1">
-                  <label className="block font-mono text-[10px] uppercase text-muted">Skill / Technology</label>
-                  <input
-                    type="text"
-                    value={newSkillName}
-                    onChange={(e) => setNewSkillName(e.target.value)}
-                    placeholder="e.g. Next.js, Python, Tailwind"
-                    className="w-full px-3 py-2 bg-black border border-white/15 rounded-[2px] font-mono text-xs text-white"
-                  />
-                </div>
-
-                <div className="sm:col-span-4 space-y-1">
-                  <label className="block font-mono text-[10px] uppercase text-muted">Category</label>
-                  <select
-                    value={newSkillCategory}
-                    onChange={(e) => setNewSkillCategory(e.target.value)}
-                    className="w-full px-3 py-2 bg-black border border-white/15 rounded-[2px] font-mono text-xs text-white"
-                  >
-                    <option value="Programming">Programming</option>
-                    <option value="Frameworks &amp; Libraries">Frameworks &amp; Libraries</option>
-                    <option value="Databases">Databases &amp; Cloud</option>
-                    <option value="Tools">Tools</option>
-                    <option value="Creative Skills">Creative &amp; Cinematography</option>
-                  </select>
-                </div>
-
-                <div className="sm:col-span-2 flex items-center gap-2 pb-2">
-                  <label className="font-mono text-xs text-muted flex items-center gap-1.5 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={newSkillHighlight}
-                      onChange={(e) => setNewSkillHighlight(e.target.checked)}
-                      className="accent-[#00f59b]"
-                    />
-                    <span>Highlight</span>
-                  </label>
-                </div>
-
-                <div className="sm:col-span-2">
-                  <button
-                    onClick={() => {
-                      if (!newSkillName.trim()) return;
-                      const newSkill: SkillItem = {
-                        name: newSkillName.trim(),
-                        category: newSkillCategory as any,
-                        highlight: newSkillHighlight,
-                      };
-                      setContent({
-                        ...content,
-                        skills: [...content.skills, newSkill],
-                      });
-                      setNewSkillName('');
-                    }}
-                    className="w-full py-2 bg-[#00f59b] text-black font-bold font-mono text-xs uppercase rounded-[2px] hover:bg-[#00f59b]/90 transition-colors"
-                  >
-                    + Add Skill
-                  </button>
-                </div>
-              </div>
-
-              {/* Existing Skills Chip Matrix */}
-              <div className="space-y-4 pt-4">
-                <span className="block font-mono text-xs uppercase text-muted">Current Stack ({content.skills.length})</span>
-                <div className="flex flex-wrap gap-2">
-                  {content.skills.map((skill, idx) => (
-                    <div
-                      key={`${skill.name}-${idx}`}
-                      className={`px-3 py-1.5 rounded-[2px] font-mono text-xs flex items-center gap-2 border ${
-                        skill.highlight
-                          ? 'bg-[#00f59b]/10 text-[#00f59b] border-[#00f59b]/30'
-                          : 'bg-white/5 text-white/80 border-white/10'
-                      }`}
-                    >
-                      <span>{skill.name}</span>
-                      <button
-                        onClick={() => {
-                          setContent({
-                            ...content,
-                            skills: content.skills.filter((_, i) => i !== idx),
-                          });
-                        }}
-                        className="text-white/40 hover:text-red-400 transition-colors"
-                        title="Remove"
-                      >
-                        &times;
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* =================================================================
-              TAB 5: EDUCATION & CERTIFICATIONS
-              ================================================================= */}
-          {activeTab === 'academic' && (
-            <div className="p-6 sm:p-8 bg-white/[0.02] border border-white/[0.08] rounded-[2px] space-y-6">
-              <div className="border-b border-white/[0.08] pb-4">
-                <h2 className="type-h2 font-black uppercase text-white">Education &amp; Credentials</h2>
-                <p className="font-mono text-xs text-muted">Manage academic background and verified credentials.</p>
-              </div>
-
-              {/* Add Certification */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end p-4 bg-[#0c0c10] border border-white/10 rounded-[2px]">
-                <div className="sm:col-span-5 space-y-1">
-                  <label className="block font-mono text-[10px] uppercase text-muted">Certification Title</label>
-                  <input
-                    type="text"
-                    value={newCertTitle}
-                    onChange={(e) => setNewCertTitle(e.target.value)}
-                    placeholder="e.g. Meta Front-End Developer"
-                    className="w-full px-3 py-2 bg-black border border-white/15 rounded-[2px] font-mono text-xs text-white"
-                  />
-                </div>
-
-                <div className="sm:col-span-3 space-y-1">
-                  <label className="block font-mono text-[10px] uppercase text-muted">Issuer</label>
-                  <input
-                    type="text"
-                    value={newCertIssuer}
-                    onChange={(e) => setNewCertIssuer(e.target.value)}
-                    placeholder="e.g. Coursera / Google"
-                    className="w-full px-3 py-2 bg-black border border-white/15 rounded-[2px] font-mono text-xs text-white"
-                  />
-                </div>
-
-                <div className="sm:col-span-2 space-y-1">
-                  <label className="block font-mono text-[10px] uppercase text-muted">Year</label>
-                  <input
-                    type="text"
-                    value={newCertDate}
-                    onChange={(e) => setNewCertDate(e.target.value)}
-                    placeholder="2025"
-                    className="w-full px-3 py-2 bg-black border border-white/15 rounded-[2px] font-mono text-xs text-white"
-                  />
-                </div>
-
-                <div className="sm:col-span-2">
-                  <button
-                    onClick={() => {
-                      if (!newCertTitle.trim()) return;
-                      const newCert: Certification = {
-                        id: `cert-${Date.now()}`,
-                        title: newCertTitle.trim(),
-                        issuer: newCertIssuer.trim(),
-                        issueDate: newCertDate.trim(),
-                      };
-                      setContent({
-                        ...content,
-                        certifications: [...content.certifications, newCert],
-                      });
-                      setNewCertTitle('');
-                    }}
-                    className="w-full py-2 bg-[#00f59b] text-black font-bold font-mono text-xs uppercase rounded-[2px] hover:bg-[#00f59b]/90 transition-colors"
-                  >
-                    + Add Cert
-                  </button>
-                </div>
-              </div>
-
-              {/* Certifications List */}
-              <div className="space-y-3 pt-4">
-                <span className="block font-mono text-xs uppercase text-muted">Verified Certifications ({content.certifications.length})</span>
-                {content.certifications.map((cert, idx) => (
-                  <div
-                    key={cert.id || idx}
-                    className="p-3 bg-white/5 border border-white/10 rounded-[2px] flex items-center justify-between font-mono text-xs"
-                  >
                     <div>
-                      <span className="font-bold text-white block">{cert.title}</span>
-                      <span className="text-muted text-[11px]">{cert.issuer} &bull; {cert.issueDate}</span>
+                      <div className="flex items-center justify-between text-[10px] font-mono text-white/50 mb-1">
+                        <span className="uppercase text-[#00f59b]">{project.category}</span>
+                        <span>{project.year || '2025'}</span>
+                      </div>
+                      <h3 className="font-bold text-base text-white group-hover:text-[#00f59b] transition-colors">
+                        {project.title}
+                      </h3>
+                      <p className="text-xs text-white/70 line-clamp-2 mt-1 font-mono">
+                        {project.description}
+                      </p>
                     </div>
+
+                    <div className="flex flex-wrap gap-1.5 pt-2">
+                      {(project.technologies || []).slice(0, 3).map((t) => (
+                        <span key={t} className="px-2 py-0.5 bg-white/5 rounded text-[10px] font-mono text-white/80">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 mt-4 border-t border-white/10 font-mono text-xs">
                     <button
                       onClick={() => {
-                        setContent({
-                          ...content,
-                          certifications: content.certifications.filter((_, i) => i !== idx),
-                        });
+                        setEditingProject({ ...project });
+                        setIsNewProject(false);
                       }}
-                      className="p-1 text-muted hover:text-red-400 transition-colors"
-                      title="Remove Certificate"
+                      className="px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 text-white font-bold transition-all"
+                    >
+                      EDIT
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        if (confirm(`Remove "${project.title}" from ${themeMeta[activeTheme].label}?`)) {
+                          updateActiveProfile((prev) => ({
+                            ...prev,
+                            projects: prev.projects.filter((_, pIdx) => pIdx !== idx),
+                          }));
+                          showNotification('success', 'Project removed.');
+                        }
+                      }}
+                      className="p-1.5 rounded hover:bg-red-500/20 text-red-400 transition-all"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
-          )}
-        </main>
-      </div>
+
+          </div>
+        )}
+
+        {/* ==================== TAB 3: CREATIVE / REELS ==================== */}
+        {activeTab === 'creative' && (
+          <div className="bg-[#111116] border border-white/10 rounded-2xl p-6 sm:p-8 space-y-6">
+            
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+              <div>
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <span>Creative Media & Video Reels for</span>
+                  <span style={{ color: themeMeta[activeTheme].color }}>
+                    {themeMeta[activeTheme].label}
+                  </span>
+                </h2>
+                <p className="text-xs text-white/50 font-mono mt-1">
+                  Manage video files, reels, and TV monitors displayed when this theme is selected.
+                </p>
+              </div>
+
+              <button
+                onClick={() => {
+                  setEditingCreative({
+                    id: `creative-${Date.now()}`,
+                    title: 'Cinematic Reel',
+                    category: 'Commercial / Cinematic',
+                    videoSrc: '/videos/j-gaze-reel.mp4',
+                    duration: '0:30',
+                    aspectRatio: '9:16',
+                    description: 'Creative direction and video editing.',
+                    client: 'Studio Work',
+                    year: '2025',
+                    featured: true,
+                    order: (activeProfile.creative?.length || 0) + 1,
+                  });
+                  setIsNewCreative(true);
+                }}
+                className="px-4 py-2 bg-[#00f59b] hover:bg-[#00f59b]/90 text-black font-mono text-xs font-bold rounded-lg flex items-center gap-2 transition-all shadow-md"
+              >
+                <Plus className="w-4 h-4" />
+                <span>ADD MEDIA REEL</span>
+              </button>
+            </div>
+
+            {/* Creative Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {(activeProfile.creative || []).map((work, idx) => (
+                <div
+                  key={work.id || idx}
+                  className="bg-black/50 border border-white/15 rounded-xl p-4 flex flex-col justify-between hover:border-white/40 transition-all"
+                >
+                  <div className="space-y-3">
+                    <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-black flex items-center justify-center border border-white/10">
+                      {work.videoSrc ? (
+                        <video src={work.videoSrc} className="w-full h-full object-cover" muted />
+                      ) : (
+                        <Clapperboard className="w-8 h-8 text-white/30" />
+                      )}
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between text-[10px] font-mono text-white/50 mb-1">
+                        <span className="uppercase text-[#00f59b]">{work.category}</span>
+                        <span>{work.year || '2025'}</span>
+                      </div>
+                      <h3 className="font-bold text-base text-white">{work.title}</h3>
+                      <p className="text-xs text-white/70 line-clamp-2 mt-1 font-mono">{work.description}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 mt-4 border-t border-white/10 font-mono text-xs">
+                    <button
+                      onClick={() => {
+                        setEditingCreative({ ...work });
+                        setIsNewCreative(false);
+                      }}
+                      className="px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 text-white font-bold transition-all"
+                    >
+                      EDIT
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        if (confirm(`Remove "${work.title}"?`)) {
+                          updateActiveProfile((prev) => ({
+                            ...prev,
+                            creative: prev.creative.filter((_, cIdx) => cIdx !== idx),
+                          }));
+                          showNotification('success', 'Creative reel removed.');
+                        }
+                      }}
+                      className="p-1.5 rounded hover:bg-red-500/20 text-red-400 transition-all"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+          </div>
+        )}
+
+        {/* ==================== TAB 4: SKILLS & ARSENAL ==================== */}
+        {activeTab === 'skills' && (
+          <div className="bg-[#111116] border border-white/10 rounded-2xl p-6 sm:p-8 space-y-6">
+            
+            <div className="border-b border-white/10 pb-4">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <span>Skills & Superpowers for</span>
+                <span style={{ color: themeMeta[activeTheme].color }}>
+                  {themeMeta[activeTheme].label}
+                </span>
+              </h2>
+              <p className="text-xs text-white/50 font-mono mt-1">
+                Add and manage skills or technical capabilities shown in this theme.
+              </p>
+            </div>
+
+            {/* Add Skill Bar */}
+            <div className="p-4 bg-black/50 border border-white/15 rounded-xl flex flex-wrap items-center gap-3 font-mono text-xs">
+              <input
+                type="text"
+                value={newSkillName}
+                onChange={(e) => setNewSkillName(e.target.value)}
+                placeholder="Skill Name (e.g. Next.js 14, Python, PyTorch)"
+                className="px-4 py-2 bg-black border border-white/15 rounded-lg text-white font-sans text-xs flex-1 min-w-[200px] focus:outline-none focus:border-[#00f59b]"
+              />
+
+              <select
+                value={newSkillCategory}
+                onChange={(e) => setNewSkillCategory(e.target.value)}
+                className="px-3 py-2 bg-black border border-white/15 rounded-lg text-white font-mono text-xs focus:outline-none"
+              >
+                <option value="Programming">Programming</option>
+                <option value="Frameworks">Frameworks</option>
+                <option value="AI / ML">AI / ML</option>
+                <option value="Tools">Tools</option>
+                <option value="Creative">Creative</option>
+              </select>
+
+              <button
+                onClick={() => {
+                  if (!newSkillName.trim()) return;
+                  updateActiveProfile((prev) => ({
+                    ...prev,
+                    skills: [
+                      ...prev.skills,
+                      {
+                        name: newSkillName.trim(),
+                        category: newSkillCategory as any,
+                        highlight: newSkillHighlight,
+                        proficiency: 95,
+                      },
+                    ],
+                  }));
+                  setNewSkillName('');
+                  showNotification('success', 'Skill added!');
+                }}
+                className="px-4 py-2 bg-[#00f59b] hover:bg-[#00f59b]/90 text-black font-bold rounded-lg flex items-center gap-1.5 transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                <span>ADD SKILL</span>
+              </button>
+            </div>
+
+            {/* Skills Pills List */}
+            <div className="flex flex-wrap gap-2 pt-2">
+              {(activeProfile.skills || []).map((skill, idx) => (
+                <div
+                  key={idx}
+                  className="px-3 py-1.5 bg-black/60 border border-white/15 rounded-lg font-mono text-xs flex items-center gap-2 hover:border-[#00f59b] transition-all group"
+                >
+                  <span className="text-white font-bold">{skill.name}</span>
+                  <span className="text-[10px] text-white/40 uppercase">({skill.category})</span>
+                  <button
+                    onClick={() => {
+                      updateActiveProfile((prev) => ({
+                        ...prev,
+                        skills: prev.skills.filter((_, sIdx) => sIdx !== idx),
+                      }));
+                    }}
+                    className="text-red-400 opacity-60 group-hover:opacity-100 hover:text-red-300"
+                  >
+                    &times;
+                  </button>
+                </div>
+              ))}
+            </div>
+
+          </div>
+        )}
+
+        {/* ==================== TAB 5: THEME CUSTOMIZER ==================== */}
+        {activeTab === 'customizer' && (
+          <div className="bg-[#111116] border border-white/10 rounded-2xl p-6 sm:p-8 space-y-6 font-mono text-xs">
+            
+            <div className="border-b border-white/10 pb-4">
+              <h2 className="text-lg font-bold text-white font-sans flex items-center gap-2">
+                <span>Visuals & Customizer Controls for</span>
+                <span style={{ color: themeMeta[activeTheme].color }}>
+                  {themeMeta[activeTheme].label}
+                </span>
+              </h2>
+              <p className="text-xs text-white/50 mt-1">
+                Configure theme-specific hardware features, animation effects, and visual styling tokens.
+              </p>
+            </div>
+
+            {activeTheme === 'syntax' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-white/70 block uppercase font-bold">Accent Color Token</label>
+                    <input
+                      type="text"
+                      value={activeProfile.settings?.accentColor || '#00f59b'}
+                      onChange={(e) =>
+                        updateActiveProfile((prev) => ({
+                          ...prev,
+                          settings: { ...prev.settings, accentColor: e.target.value },
+                        }))
+                      }
+                      className="w-full px-4 py-2 bg-black border border-white/15 rounded-lg text-white font-mono text-xs"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-white/70 block uppercase font-bold">Infinite Marquee Text</label>
+                    <input
+                      type="text"
+                      value={activeProfile.settings?.marqueeText || 'REACT 19 • NEXT.JS 14 • FASTAPI • PYTHON • TAILWIND CSS'}
+                      onChange={(e) =>
+                        updateActiveProfile((prev) => ({
+                          ...prev,
+                          settings: { ...prev.settings, marqueeText: e.target.value },
+                        }))
+                      }
+                      className="w-full px-4 py-2 bg-black border border-white/15 rounded-lg text-white font-mono text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTheme === 'spiderTech' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-white/70 block uppercase font-bold">Suit Accent Color</label>
+                    <input
+                      type="text"
+                      value={activeProfile.settings?.suitColor || '#c40c24'}
+                      onChange={(e) =>
+                        updateActiveProfile((prev) => ({
+                          ...prev,
+                          settings: { ...prev.settings, suitColor: e.target.value },
+                        }))
+                      }
+                      className="w-full px-4 py-2 bg-black border border-white/15 rounded-lg text-white font-mono text-xs"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-white/70 block uppercase font-bold">Web Tension / Physic Mode</label>
+                    <input
+                      type="text"
+                      disabled
+                      value="360° Omnidirectional Elastic Physics [ACTIVE]"
+                      className="w-full px-4 py-2 bg-black/40 border border-white/10 rounded-lg text-white/50 font-mono text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTheme === 'ericCole' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-white/70 block uppercase font-bold">TV Channel Label</label>
+                    <input
+                      type="text"
+                      value={activeProfile.settings?.tvChannel || 'CH 04 • J.GAZE_ EDITORIAL'}
+                      onChange={(e) =>
+                        updateActiveProfile((prev) => ({
+                          ...prev,
+                          settings: { ...prev.settings, tvChannel: e.target.value },
+                        }))
+                      }
+                      className="w-full px-4 py-2 bg-black border border-white/15 rounded-lg text-white font-mono text-xs"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-white/70 block uppercase font-bold">TV Reel Video Path</label>
+                    <input
+                      type="text"
+                      value={activeProfile.settings?.videoSrc || '/videos/j-gaze-reel.mp4'}
+                      onChange={(e) =>
+                        updateActiveProfile((prev) => ({
+                          ...prev,
+                          settings: { ...prev.settings, videoSrc: e.target.value },
+                        }))
+                      }
+                      className="w-full px-4 py-2 bg-black border border-white/15 rounded-lg text-white font-mono text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+          </div>
+        )}
+
+      </main>
 
       {/* =================================================================
-          PROJECT EDIT / CREATE MODAL (MOBILE RESPONSIVE FULL-SCREEN SHEET)
+          COPY / CLONE THEME MODAL
+          ================================================================= */}
+      {showCopyModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#111116] border border-white/20 rounded-2xl p-6 sm:p-8 max-w-md w-full space-y-6 shadow-2xl">
+            <div className="space-y-2">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <Copy className="w-5 h-5 text-[#00f59b]" />
+                <span>Copy Content to {themeMeta[activeTheme].label}</span>
+              </h3>
+              <p className="text-xs text-white/60 font-mono">
+                Select another theme to copy all profile details, projects, reels, and skills into your currently active workspace.
+              </p>
+            </div>
+
+            <div className="space-y-2 font-mono text-xs">
+              <label className="text-white/80 uppercase font-bold block">Source Theme to Copy From:</label>
+              <select
+                value={copySourceTheme}
+                onChange={(e) => setCopySourceTheme(e.target.value as ThemeKey)}
+                className="w-full px-4 py-2.5 bg-black border border-white/20 rounded-lg text-white focus:outline-none"
+              >
+                {(['syntax', 'spiderTech', 'ericCole'] as ThemeKey[])
+                  .filter((t) => t !== activeTheme)
+                  .map((t) => (
+                    <option key={t} value={t}>
+                      {themeMeta[t].label}
+                    </option>
+                  ))}
+              </select>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 font-mono text-xs pt-2">
+              <button
+                onClick={() => setShowCopyModal(false)}
+                className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold transition-all"
+              >
+                CANCEL
+              </button>
+
+              <button
+                onClick={handleCopyFromTheme}
+                className="px-4 py-2 rounded-lg bg-[#00f59b] hover:bg-[#00f59b]/90 text-black font-bold transition-all shadow-md"
+              >
+                CONFIRM &amp; CLONE
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =================================================================
+          PROJECT EDIT / CREATE MODAL
           ================================================================= */}
       {editingProject && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
-          <div className="w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-2xl bg-[#000000] border-0 sm:border border-white/20 sm:rounded-[4px] flex flex-col shadow-2xl overflow-hidden">
-            {/* Modal Header */}
-            <div className="sticky top-0 bg-[#000000]/98 border-b border-white/10 px-5 sm:px-8 py-4 flex items-center justify-between z-10">
-              <div className="flex items-center gap-2">
-                <FolderGit2 className="w-4 h-4 text-[#00f59b]" />
-                <h3 className="type-h3 font-bold uppercase text-white text-sm sm:text-base">
-                  {isNewProject ? 'Create New Project' : 'Edit Project Details'}
-                </h3>
-              </div>
-              <button
-                onClick={() => setEditingProject(null)}
-                className="w-8 h-8 rounded bg-white/5 hover:bg-white/10 text-muted hover:text-white flex items-center justify-center font-mono text-lg transition-colors"
-                aria-label="Close modal"
-              >
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#111116] border border-white/20 rounded-2xl p-6 sm:p-8 max-w-2xl w-full space-y-6 my-8 shadow-2xl">
+            
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <FolderGit2 className="w-5 h-5 text-[#00f59b]" />
+                <span>{isNewProject ? 'Add New Project' : 'Edit Project Details'}</span>
+              </h3>
+              <button onClick={() => setEditingProject(null)} className="text-white/60 hover:text-white text-xl font-bold">
                 &times;
               </button>
             </div>
 
-            {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-5 sm:p-8 space-y-4 font-mono text-xs">
-              <div className="space-y-1">
-                <label className="text-muted uppercase text-[11px] font-semibold">Project Title</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono text-xs">
+              
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="text-white/70 block uppercase font-bold">Project Title</label>
                 <input
                   type="text"
-                  value={editingProject.title}
+                  value={editingProject.title || ''}
                   onChange={(e) => setEditingProject({ ...editingProject, title: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-black border border-white/15 rounded text-white text-sm focus:outline-none focus:border-[#00f59b]"
+                  className="w-full px-4 py-2 bg-black border border-white/15 rounded-lg text-white font-sans text-sm"
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-muted uppercase text-[11px]">Category</label>
-                  <input
-                    type="text"
-                    value={editingProject.category}
-                    onChange={(e) => setEditingProject({ ...editingProject, category: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-black border border-white/15 rounded text-white text-sm focus:outline-none focus:border-[#00f59b]"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-muted uppercase text-[11px]">Year</label>
-                  <input
-                    type="text"
-                    value={editingProject.year}
-                    onChange={(e) => setEditingProject({ ...editingProject, year: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-black border border-white/15 rounded text-white text-sm focus:outline-none focus:border-[#00f59b]"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-muted uppercase text-[11px]">Short Summary (Marquee / Card)</label>
+              <div className="space-y-1.5">
+                <label className="text-white/70 block uppercase font-bold">Category</label>
                 <input
                   type="text"
-                  value={editingProject.shortDescription}
-                  onChange={(e) => setEditingProject({ ...editingProject, shortDescription: e.target.value })}
-                  className="w-full px-3.5 py-2 bg-black border border-white/15 rounded text-white text-sm focus:outline-none focus:border-[#00f59b]"
+                  value={editingProject.category || ''}
+                  onChange={(e) => setEditingProject({ ...editingProject, category: e.target.value })}
+                  className="w-full px-4 py-2 bg-black border border-white/15 rounded-lg text-white font-sans text-xs"
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="text-muted uppercase text-[11px]">Full Description</label>
+              <div className="space-y-1.5">
+                <label className="text-white/70 block uppercase font-bold">Year</label>
+                <input
+                  type="text"
+                  value={editingProject.year || '2025'}
+                  onChange={(e) => setEditingProject({ ...editingProject, year: e.target.value })}
+                  className="w-full px-4 py-2 bg-black border border-white/15 rounded-lg text-white font-sans text-xs"
+                />
+              </div>
+
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="text-white/70 block uppercase font-bold">Description</label>
                 <textarea
                   rows={3}
-                  value={editingProject.description}
+                  value={editingProject.description || ''}
                   onChange={(e) => setEditingProject({ ...editingProject, description: e.target.value })}
-                  className="w-full px-3.5 py-2 bg-black border border-white/15 rounded text-white text-sm focus:outline-none focus:border-[#00f59b]"
+                  className="w-full px-4 py-2 bg-black border border-white/15 rounded-lg text-white font-sans text-xs resize-none"
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-muted uppercase text-[11px]">Live Deployment URL</label>
-                  <input
-                    type="text"
-                    value={editingProject.liveUrl || ''}
-                    onChange={(e) => setEditingProject({ ...editingProject, liveUrl: e.target.value })}
-                    placeholder="https://example.com"
-                    className="w-full px-3.5 py-2 bg-black border border-white/15 rounded text-white text-sm focus:outline-none focus:border-[#00f59b]"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-muted uppercase text-[11px]">GitHub Source URL</label>
-                  <input
-                    type="text"
-                    value={editingProject.githubUrl || ''}
-                    onChange={(e) => setEditingProject({ ...editingProject, githubUrl: e.target.value })}
-                    placeholder="https://github.com/..."
-                    className="w-full px-3.5 py-2 bg-black border border-white/15 rounded text-white text-sm focus:outline-none focus:border-[#00f59b]"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-muted uppercase text-[11px]">Technologies (comma separated)</label>
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="text-white/70 block uppercase font-bold">Technologies (comma separated)</label>
                 <input
                   type="text"
-                  value={editingProject.technologies?.join(', ') || ''}
+                  value={(editingProject.technologies || []).join(', ')}
                   onChange={(e) =>
                     setEditingProject({
                       ...editingProject,
                       technologies: e.target.value.split(',').map((t) => t.trim()).filter(Boolean),
                     })
                   }
-                  className="w-full px-3.5 py-2 bg-black border border-white/15 rounded text-white text-sm focus:outline-none focus:border-[#00f59b]"
+                  placeholder="React.js, Next.js 14, FastAPI, Python"
+                  className="w-full px-4 py-2 bg-black border border-white/15 rounded-lg text-white font-sans text-xs"
                 />
               </div>
+
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="text-white/70 block uppercase font-bold">Image URL or Upload</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={editingProject.image || ''}
+                    onChange={(e) => setEditingProject({ ...editingProject, image: e.target.value, thumbnail: e.target.value })}
+                    className="flex-1 px-4 py-2 bg-black border border-white/15 rounded-lg text-white font-sans text-xs"
+                  />
+                  <label className="px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg cursor-pointer flex items-center gap-1 text-[11px] font-bold">
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Upload</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          const url = await uploadFile(e.target.files[0], 'image');
+                          if (url) {
+                            setEditingProject({ ...editingProject, image: url, thumbnail: url });
+                          }
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-white/70 block uppercase font-bold">Live Demo URL</label>
+                <input
+                  type="text"
+                  value={editingProject.liveUrl || ''}
+                  onChange={(e) => setEditingProject({ ...editingProject, liveUrl: e.target.value })}
+                  placeholder="https://..."
+                  className="w-full px-4 py-2 bg-black border border-white/15 rounded-lg text-white font-sans text-xs"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-white/70 block uppercase font-bold">GitHub Repo URL</label>
+                <input
+                  type="text"
+                  value={editingProject.githubUrl || ''}
+                  onChange={(e) => setEditingProject({ ...editingProject, githubUrl: e.target.value })}
+                  placeholder="https://github.com/..."
+                  className="w-full px-4 py-2 bg-black border border-white/15 rounded-lg text-white font-sans text-xs"
+                />
+              </div>
+
             </div>
 
-            {/* Modal Sticky Footer */}
-            <div className="sticky bottom-0 bg-[#000000]/98 border-t border-white/10 px-5 sm:px-8 py-3.5 flex items-center justify-end gap-3 pb-safe z-10">
+            <div className="flex items-center justify-end gap-3 font-mono text-xs pt-4 border-t border-white/10">
               <button
                 onClick={() => setEditingProject(null)}
-                className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-mono text-xs uppercase rounded transition-colors"
+                className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold transition-all"
               >
-                Cancel
+                CANCEL
               </button>
+
               <button
                 onClick={() => {
+                  if (!editingProject.title) return;
                   if (isNewProject) {
-                    setContent({
-                      ...content,
-                      projects: [...content.projects, editingProject],
-                    });
+                    updateActiveProfile((prev) => ({
+                      ...prev,
+                      projects: [...prev.projects, editingProject],
+                    }));
                   } else {
-                    setContent({
-                      ...content,
-                      projects: content.projects.map((p) => (p.id === editingProject.id ? editingProject : p)),
-                    });
+                    updateActiveProfile((prev) => ({
+                      ...prev,
+                      projects: prev.projects.map((p) => (p.id === editingProject.id ? editingProject : p)),
+                    }));
                   }
                   setEditingProject(null);
-                  showNotification('success', 'Project updated in workspace!');
+                  showNotification('success', 'Project updated in active workspace!');
                 }}
-                className="px-5 py-2.5 bg-[#00f59b] text-black font-mono text-xs font-bold uppercase rounded hover:bg-[#00f59b]/90 transition-colors"
+                className="px-5 py-2 rounded-lg bg-[#00f59b] hover:bg-[#00f59b]/90 text-black font-bold transition-all shadow-md"
               >
-                Save Project
+                SAVE TO {themeMeta[activeTheme].label.toUpperCase()}
               </button>
             </div>
+
           </div>
         </div>
       )}
 
       {/* =================================================================
-          CREATIVE EDIT / CREATE MODAL (MOBILE RESPONSIVE FULL-SCREEN SHEET)
+          CREATIVE MEDIA EDIT / CREATE MODAL
           ================================================================= */}
       {editingCreative && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
-          <div className="w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-xl bg-[#000000] border-0 sm:border border-white/20 sm:rounded-[4px] flex flex-col shadow-2xl overflow-hidden">
-            {/* Modal Header */}
-            <div className="sticky top-0 bg-[#000000]/98 border-b border-white/10 px-5 sm:px-8 py-4 flex items-center justify-between z-10">
-              <div className="flex items-center gap-2">
-                <Clapperboard className="w-4 h-4 text-[#00f59b]" />
-                <h3 className="type-h3 font-bold uppercase text-white text-sm sm:text-base">
-                  {isNewCreative ? 'Add Creative Reel' : 'Edit Reel Metadata'}
-                </h3>
-              </div>
-              <button
-                onClick={() => setEditingCreative(null)}
-                className="w-8 h-8 rounded bg-white/5 hover:bg-white/10 text-muted hover:text-white flex items-center justify-center font-mono text-lg transition-colors"
-                aria-label="Close modal"
-              >
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#111116] border border-white/20 rounded-2xl p-6 sm:p-8 max-w-xl w-full space-y-6 my-8 shadow-2xl">
+            
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <Clapperboard className="w-5 h-5 text-[#00f59b]" />
+                <span>{isNewCreative ? 'Add Creative Media' : 'Edit Media Details'}</span>
+              </h3>
+              <button onClick={() => setEditingCreative(null)} className="text-white/60 hover:text-white text-xl font-bold">
                 &times;
               </button>
             </div>
 
-            {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-5 sm:p-8 space-y-4 font-mono text-xs">
-              <div className="space-y-1">
-                <label className="text-muted uppercase text-[11px] font-semibold">Reel Title</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono text-xs">
+              
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="text-white/70 block uppercase font-bold">Media Title</label>
                 <input
                   type="text"
-                  value={editingCreative.title}
+                  value={editingCreative.title || ''}
                   onChange={(e) => setEditingCreative({ ...editingCreative, title: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-black border border-white/15 rounded text-white text-sm focus:outline-none focus:border-[#00f59b]"
+                  className="w-full px-4 py-2 bg-black border border-white/15 rounded-lg text-white font-sans text-sm"
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="text-muted uppercase text-[11px]">Description</label>
-                <textarea
-                  rows={2}
-                  value={editingCreative.description}
-                  onChange={(e) => setEditingCreative({ ...editingCreative, description: e.target.value })}
-                  className="w-full px-3.5 py-2 bg-black border border-white/15 rounded text-white text-sm focus:outline-none focus:border-[#00f59b]"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-muted uppercase text-[11px]">Video File URL / Path</label>
+              <div className="space-y-1.5">
+                <label className="text-white/70 block uppercase font-bold">Category</label>
                 <input
                   type="text"
-                  value={editingCreative.video || ''}
-                  onChange={(e) => setEditingCreative({ ...editingCreative, video: e.target.value })}
-                  placeholder="/videos/reel-1.mp4"
-                  className="w-full px-3.5 py-2 bg-black border border-white/15 rounded text-white text-sm focus:outline-none focus:border-[#00f59b]"
+                  value={editingCreative.category || ''}
+                  onChange={(e) => setEditingCreative({ ...editingCreative, category: e.target.value })}
+                  className="w-full px-4 py-2 bg-black border border-white/15 rounded-lg text-white font-sans text-xs"
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-muted uppercase text-[11px]">Orientation</label>
-                  <select
-                    value={editingCreative.orientation || 'vertical'}
-                    onChange={(e) => setEditingCreative({ ...editingCreative, orientation: e.target.value as any })}
-                    className="w-full px-3.5 py-2 bg-black border border-white/15 rounded text-white text-sm focus:outline-none focus:border-[#00f59b]"
-                  >
-                    <option value="vertical">Vertical (9:16)</option>
-                    <option value="landscape">Landscape (16:9)</option>
-                    <option value="square">Square (1:1)</option>
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-muted uppercase text-[11px]">Role</label>
+              <div className="space-y-1.5">
+                <label className="text-white/70 block uppercase font-bold">Aspect Ratio</label>
+                <select
+                  value={editingCreative.aspectRatio || '9:16'}
+                  onChange={(e) => setEditingCreative({ ...editingCreative, aspectRatio: e.target.value as any })}
+                  className="w-full px-4 py-2 bg-black border border-white/15 rounded-lg text-white font-mono text-xs"
+                >
+                  <option value="9:16">9:16 (Vertical Reel)</option>
+                  <option value="16:9">16:9 (Cinematic Widescreen)</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="text-white/70 block uppercase font-bold">Video File URL or Upload</label>
+                <div className="flex items-center gap-2">
                   <input
                     type="text"
-                    value={Array.isArray(editingCreative.role) ? editingCreative.role.join(', ') : editingCreative.role || ''}
-                    onChange={(e) => setEditingCreative({ ...editingCreative, role: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-black border border-white/15 rounded text-white text-sm focus:outline-none focus:border-[#00f59b]"
+                    value={editingCreative.videoSrc || ''}
+                    onChange={(e) => setEditingCreative({ ...editingCreative, videoSrc: e.target.value })}
+                    className="flex-1 px-4 py-2 bg-black border border-white/15 rounded-lg text-white font-sans text-xs"
                   />
+                  <label className="px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg cursor-pointer flex items-center gap-1 text-[11px] font-bold">
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Upload</span>
+                    <input
+                      type="file"
+                      accept="video/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          const url = await uploadFile(e.target.files[0], 'video');
+                          if (url) {
+                            setEditingCreative({ ...editingCreative, videoSrc: url });
+                          }
+                        }
+                      }}
+                    />
+                  </label>
                 </div>
               </div>
+
             </div>
 
-            {/* Modal Sticky Footer */}
-            <div className="sticky bottom-0 bg-[#000000]/98 border-t border-white/10 px-5 sm:px-8 py-3.5 flex items-center justify-end gap-3 pb-safe z-10">
+            <div className="flex items-center justify-end gap-3 font-mono text-xs pt-4 border-t border-white/10">
               <button
                 onClick={() => setEditingCreative(null)}
-                className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-mono text-xs uppercase rounded transition-colors"
+                className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold transition-all"
               >
-                Cancel
+                CANCEL
               </button>
+
               <button
                 onClick={() => {
+                  if (!editingCreative.title) return;
                   if (isNewCreative) {
-                    setContent({
-                      ...content,
-                      creative: [...content.creative, editingCreative],
-                    });
+                    updateActiveProfile((prev) => ({
+                      ...prev,
+                      creative: [...prev.creative, editingCreative],
+                    }));
                   } else {
-                    setContent({
-                      ...content,
-                      creative: content.creative.map((c) => (c.id === editingCreative.id ? editingCreative : c)),
-                    });
+                    updateActiveProfile((prev) => ({
+                      ...prev,
+                      creative: prev.creative.map((c) => (c.id === editingCreative.id ? editingCreative : c)),
+                    }));
                   }
                   setEditingCreative(null);
-                  showNotification('success', 'Creative reel updated in workspace!');
+                  showNotification('success', 'Media reel saved to active workspace!');
                 }}
-                className="px-5 py-2.5 bg-[#00f59b] text-black font-mono text-xs font-bold uppercase rounded hover:bg-[#00f59b]/90 transition-colors"
+                className="px-5 py-2 rounded-lg bg-[#00f59b] hover:bg-[#00f59b]/90 text-black font-bold transition-all shadow-md"
               >
-                Save Reel
+                SAVE MEDIA
               </button>
             </div>
+
           </div>
         </div>
       )}
 
       {/* =================================================================
-          MOBILE STICKY BOTTOM ACTION BAR (< 1024px)
+          STICKY BOTTOM SAVE BAR
           ================================================================= */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 bg-[#0c0c10]/95 backdrop-blur-xl border-t border-white/10 px-4 py-3 z-40 pb-safe flex items-center justify-between shadow-[0_-8px_30px_rgba(0,0,0,0.9)]">
-        <div className="flex items-center gap-2">
+      <div className="fixed bottom-0 inset-x-0 bg-[#09090b]/95 backdrop-blur-xl border-t border-white/15 px-6 py-3 z-30 flex items-center justify-between">
+        <div className="flex items-center gap-2 font-mono text-xs text-white/70">
           <span className="w-2 h-2 rounded-full bg-[#00f59b] animate-pulse" />
-          <span className="font-mono text-[11px] uppercase tracking-wider text-white font-semibold">
-            {activeTab.toUpperCase()}
-          </span>
+          <span>Active Workspace: <strong>{themeMeta[activeTheme].label}</strong></span>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Link
-            href="/"
-            target="_blank"
-            className="px-3 py-1.5 bg-white/10 text-white rounded font-mono text-[11px] uppercase tracking-wider flex items-center gap-1"
-          >
-            <span>Live Site</span>
-            <ArrowUpRight className="w-3 h-3" />
-          </Link>
-
+        <div className="flex items-center gap-3 font-mono text-xs">
           <button
             onClick={handleSaveAll}
             disabled={saving}
-            className="px-4 py-1.5 bg-[#00f59b] text-black font-mono text-[11px] font-bold uppercase tracking-wider rounded flex items-center gap-1.5 shadow-[0_0_15px_rgba(0,245,155,0.3)] disabled:opacity-50"
+            className="px-6 py-2.5 rounded-lg bg-[#00f59b] hover:bg-[#00f59b]/90 text-black font-bold flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(0,245,155,0.4)] disabled:opacity-50"
           >
-            <Save className="w-3.5 h-3.5" />
-            <span>{saving ? 'Saving...' : 'Save Live'}</span>
+            <Save className="w-4 h-4" />
+            <span>{saving ? 'SAVING...' : 'SAVE ALL CHANGES'}</span>
           </button>
         </div>
       </div>
+
     </div>
   );
 }
