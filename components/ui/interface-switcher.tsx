@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useInterfaceMode } from '@/components/providers/interface-mode-provider';
-import { Terminal, Flame, Eye } from 'lucide-react';
+import { Terminal, Eye, Sparkles } from 'lucide-react';
 
 export const InterfaceSwitcher: React.FC = () => {
   const { mode, setMode } = useInterfaceMode();
@@ -76,6 +77,20 @@ export const InterfaceSwitcher: React.FC = () => {
           <Eye className={`w-3.5 h-3.5 relative z-10 ${mode === 'eric-cole' ? 'text-white' : 'text-muted'}`} />
           <span className="relative z-10 uppercase tracking-wider text-[10px] sm:text-[11px]">Eric Cole</span>
         </button>
+
+        {/* Divider & Buy Template Button */}
+        <div className="w-[1px] h-4 bg-white/20 my-auto mx-0.5" />
+
+        <Link
+          href="/templates"
+          className="relative px-3 py-1.5 rounded-full flex items-center gap-1.5 text-white/90 hover:text-white bg-[#00f59b]/15 hover:bg-[#00f59b]/25 border border-[#00f59b]/40 transition-all shadow-[0_0_12px_rgba(0,245,155,0.2)]"
+          title="Buy Portfolio Template"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-[#00f59b]" />
+          <span className="uppercase tracking-wider text-[10px] sm:text-[11px] font-bold text-[#00f59b] whitespace-nowrap">
+            Buy Template
+          </span>
+        </Link>
       </div>
     </aside>
   );

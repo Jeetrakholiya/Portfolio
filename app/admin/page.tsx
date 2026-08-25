@@ -133,6 +133,20 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     fetchContent();
+
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const unlocked = params.get('unlocked') as ThemeKey | 'all' | null;
+      const license = params.get('license');
+      if (unlocked) {
+        if (unlocked === 'syntax' || unlocked === 'spiderTech' || unlocked === 'ericCole') {
+          setActiveTheme(unlocked);
+          showNotification('success', `🎉 Unlocked ${themeMeta[unlocked].label} Builder! License: ${license || 'ACTIVE'}`);
+        } else if (unlocked === 'all') {
+          showNotification('success', `🎉 Unlocked All-Access Triple Template Suite! License: ${license || 'ACTIVE'}`);
+        }
+      }
+    }
   }, [fetchContent]);
 
   const handleSaveAll = React.useCallback(async () => {
