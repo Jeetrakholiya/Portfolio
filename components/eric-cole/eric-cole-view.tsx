@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { AppContent } from '@/lib/content-service';
+import { AppContent } from '@/types/content';
 import { EricHero } from './eric-hero';
 import { EricProjects } from './eric-projects';
 import { EricApproach } from './eric-approach';

@@ -36,7 +36,7 @@ import {
   ThemeProfileData,
   ThemeProfilesMap,
   createDefaultThemeProfiles,
-} from '@/lib/content-service';
+} from '@/types/content';
 import { Project } from '@/types/project';
 import { CreativeWork } from '@/types/creative';
 import { SkillItem } from '@/types/skills';

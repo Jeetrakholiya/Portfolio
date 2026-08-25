@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { SiteContent } from '@/lib/content-service';
+import { SiteContent } from '@/types/content';
 import { siteConfig } from '@/data/site';
 import { MapPin, Award, Globe, Shield } from 'lucide-react';
 

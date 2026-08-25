@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { AppContent } from '@/lib/content-service';
+import { AppContent } from '@/types/content';
 import { SpiderWebCanvas } from './spider-web-canvas';
 import { SpiderCursor } from './spider-cursor';
 import { HangingSpiderman } from './hanging-spiderman';

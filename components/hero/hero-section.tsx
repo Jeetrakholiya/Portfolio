@@ -4,7 +4,7 @@ import React, { useRef } from 'react';
 import Image from 'next/image';
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 import { siteConfig } from '@/data/site';
-import { SiteContent } from '@/lib/content-service';
+import { SiteContent } from '@/types/content';
 import { easings } from '@/lib/animations';
 import { ArrowDown, ArrowUpRight } from 'lucide-react';
 

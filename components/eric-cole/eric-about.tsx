@@ -3,7 +3,7 @@
 import React, { useRef } from 'react';
 import Image from 'next/image';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { SiteContent } from '@/lib/content-service';
+import { SiteContent } from '@/types/content';
 import { siteConfig } from '@/data/site';
 import { ScrollRevealText } from '@/components/ui/scroll-reveal-text';
 

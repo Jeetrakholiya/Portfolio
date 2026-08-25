@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { SiteContent } from '@/lib/content-service';
+import { SiteContent } from '@/types/content';
 import { Flame, MapPin, GraduationCap, Code2, Film, Sparkles } from 'lucide-react';
 
 export interface FuelAboutProps {

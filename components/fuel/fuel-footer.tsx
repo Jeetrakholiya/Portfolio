@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { SiteContent } from '@/lib/content-service';
+import { SiteContent } from '@/types/content';
 import { siteConfig } from '@/data/site';
 import { Flame, ArrowUp } from 'lucide-react';
 

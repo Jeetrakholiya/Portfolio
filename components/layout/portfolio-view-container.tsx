@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInterfaceMode } from '@/components/providers/interface-mode-provider';
-import { AppContent } from '@/lib/content-service';
+import { AppContent } from '@/types/content';
 
 // Syntax Interface Components
 import { HeroSection } from '@/components/hero/hero-section';

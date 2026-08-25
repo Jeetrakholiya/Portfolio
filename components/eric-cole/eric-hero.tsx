@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { SiteContent } from '@/lib/content-service';
+import { SiteContent } from '@/types/content';
 import { siteConfig } from '@/data/site';
 import { RetroTVMonitor } from './retro-tv-monitor';
 import { ArrowUpRight } from 'lucide-react';

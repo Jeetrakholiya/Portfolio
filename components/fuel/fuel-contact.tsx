@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { SiteContent } from '@/lib/content-service';
+import { SiteContent } from '@/types/content';
 import { siteConfig } from '@/data/site';
 import { FuelGridMarkers } from './fuel-grid-markers';
 import { ArrowUpRight, Copy, Check, Flame } from 'lucide-react';

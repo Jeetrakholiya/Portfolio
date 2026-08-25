@@ -132,3 +132,83 @@ export const defaultTemplatesConfig: TemplatesConfig = {
     aboutHeadline: 'A Visual Storyteller in Code and Cinematography',
   },
 };
+
+export function createDefaultThemeProfiles(baseContent: Partial<AppContent>): ThemeProfilesMap {
+  const baseSite: SiteContent = baseContent.site || {
+    name: 'Jeet Rakholiya',
+    creativeName: 'J.GAZE_',
+    title: 'Jeet Rakholiya — Full-Stack Developer & Visual Creator',
+    primaryRole: 'Full-Stack Developer',
+    secondaryRoles: ['AI/ML Enthusiast', 'Videographer', 'Video Editor', 'Visual Storyteller'],
+    description: 'Personal portfolio of Jeet Rakholiya — Full-Stack Developer building modern digital products and Visual Creator (J.GAZE_) crafting cinematic visual experiences.',
+    url: 'https://jeetrakholiya.dev',
+    email: 'jeetrakholiya02@gmail.com',
+    github: 'https://github.com/Jeetrakholiya',
+    linkedin: 'https://linkedin.com/in/jeet-rakholiya-48a662358',
+    instagram: 'https://www.instagram.com/j.gaze_/',
+    location: 'Gujarat, India',
+    availability: 'Available for work',
+    heroQuote: "WHETHER IT'S WRITING CODE OR STRUCTURING A VISUAL STORY, I AIM FOR CLARITY, DISCIPLINE AND LONG-TERM IMPACT.",
+    heroTimeline: '2022 → 2026',
+    heroAcademic: 'Final-Year B.E. CS & IT',
+    heroSubtitle: 'Full-Stack Developer & Visual Creator (@j.gaze_), based in Gujarat, India',
+    portraitImage: '/images/img_2166_1787568234145.png',
+  };
+
+  const baseProjects = baseContent.projects || [];
+  const baseCreative = baseContent.creative || [];
+  const baseSkills = baseContent.skills || [];
+  const baseEducation = baseContent.education || [];
+  const baseCertifications = baseContent.certifications || [];
+
+  return {
+    syntax: {
+      site: {
+        ...baseSite,
+        name: baseSite.name || 'Jeet Rakholiya',
+        primaryRole: 'Full-Stack Developer',
+        title: `${baseSite.name || 'Jeet Rakholiya'} — Full-Stack Developer & Terminal Engineer`,
+        heroSubtitle: 'Full-Stack Developer & Visual Creator (@j.gaze_), based in Gujarat, India',
+        heroHeadline: 'I BUILD SYSTEMS. I FRAME STORIES.',
+      },
+      projects: [...baseProjects],
+      creative: [...baseCreative],
+      skills: [...baseSkills],
+      education: [...baseEducation],
+      certifications: [...baseCertifications],
+      settings: { ...defaultTemplatesConfig.syntax },
+    },
+    spiderTech: {
+      site: {
+        ...baseSite,
+        name: 'Spider-Man',
+        creativeName: 'PETER PARKER / MILES',
+        primaryRole: 'Multiverse Web Engineer',
+        title: 'Spider-Man — Multiverse Web Architecture & AI Systems',
+        heroSubtitle: 'Who are you under the mask? Engineering high-speed webs and neural agent networks.',
+        heroHeadline: 'WITH GREAT CODE COMES GREAT COMPUTATION.',
+        heroQuote: 'ANYONE CAN WEAR THE MASK — BUT CRAFTING RESILIENT ARCHITECTURES REQUIRES RELENTLESS MASTERY.',
+      },
+      projects: [...baseProjects],
+      creative: [...baseCreative],
+      skills: [...baseSkills],
+      settings: { ...defaultTemplatesConfig.spiderTech },
+    },
+    ericCole: {
+      site: {
+        ...baseSite,
+        name: 'Eric Cole',
+        creativeName: 'J.GAZE_ STUDIO',
+        primaryRole: 'Creative Director & Filmmaker',
+        title: 'Eric Cole — Editorial Design & Visual Direction',
+        heroSubtitle: 'Editorial Portfolio of Jeet Rakholiya • Video Direction & High-End Visuals',
+        heroHeadline: 'CINEMATIC VISION. EDITORIAL PRECISION.',
+        heroQuote: 'FRAME BY FRAME, LINE BY LINE. CRAFTING TIMELESS DIGITAL EXPERIENCES.',
+      },
+      projects: [...baseProjects],
+      creative: [...baseCreative],
+      skills: [...baseSkills],
+      settings: { ...defaultTemplatesConfig.ericCole },
+    },
+  };
+}

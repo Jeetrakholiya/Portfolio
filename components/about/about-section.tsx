@@ -6,7 +6,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { Container } from '@/components/layout/container';
 import { SectionLabel } from '@/components/ui/section-label';
 import { siteConfig } from '@/data/site';
-import { SiteContent } from '@/lib/content-service';
+import { SiteContent } from '@/types/content';
 import { easings } from '@/lib/animations';
 
 export interface AboutSectionProps {
