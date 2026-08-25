@@ -11,6 +11,7 @@ import { EricJGazeReel } from './eric-jgaze-reel';
 import { EricContact } from './eric-contact';
 import { RetroTVOverlay } from '@/components/ui/retro-tv-overlay';
 import { EricCRTIntroLoader } from './eric-crt-intro-loader';
+import { RetroTVRemote } from './retro-tv-remote';
 
 export interface EricColeViewProps {
   content: AppContent;
@@ -70,6 +71,7 @@ export const EricColeView: React.FC<EricColeViewProps> = ({ content }) => {
 
   return (
     <div
+      id="eric-root"
       className={`relative w-full min-h-screen flex flex-col font-sans select-none transition-colors duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
         currentTheme === 'dark'
           ? 'bg-[#0e0e10] text-[#f4f4f0] selection:bg-white selection:text-black'
@@ -81,6 +83,9 @@ export const EricColeView: React.FC<EricColeViewProps> = ({ content }) => {
 
       {/* 90's Retro CRT TV Full-Page Scanline & Signal Variance Overlay */}
       <RetroTVOverlay />
+
+      {/* Interactive 90s TV Remote Control Widget */}
+      <RetroTVRemote />
 
       <EricHero siteContent={profile.site} />
       <EricProjects projects={profile.projects} />

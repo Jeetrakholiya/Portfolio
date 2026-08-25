@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { SiteContent } from '@/types/content';
 import { siteConfig } from '@/data/site';
-import { Zap, Shield, ArrowUpRight, Sparkles } from 'lucide-react';
+import { Zap, Shield, ArrowUpRight, Sparkles, Volume2, VolumeX } from 'lucide-react';
+import { playThwipSound, playSpiderSenseAlert, toggleSpiderSound, isSpiderSoundEnabled } from './spider-sound-effects';
 
 export interface SpiderHeroProps {
   siteContent?: SiteContent;
@@ -13,10 +14,24 @@ export interface SpiderHeroProps {
 export const SpiderHero: React.FC<SpiderHeroProps> = ({ siteContent }) => {
   const name = siteContent?.name || siteConfig.name;
   const [thwipActive, setThwipActive] = useState(false);
+  const [soundOn, setSoundOn] = useState(true);
+
+  useEffect(() => {
+    setSoundOn(isSpiderSoundEnabled());
+  }, []);
 
   const triggerThwip = () => {
+    playThwipSound();
     setThwipActive(true);
     setTimeout(() => setThwipActive(false), 900);
+  };
+
+  const handleToggleSound = () => {
+    const next = toggleSpiderSound();
+    setSoundOn(next);
+    if (next) {
+      playSpiderSenseAlert();
+    }
   };
 
   return (
@@ -45,11 +60,27 @@ export const SpiderHero: React.FC<SpiderHeroProps> = ({ siteContent }) => {
 
         {/* Right Status Group */}
         <div className="flex items-center gap-4 sm:gap-6">
+          
+          {/* Interactive Web Audio FX Toggle */}
+          <button
+            onClick={handleToggleSound}
+            className={`px-3 py-1 rounded-full border flex items-center gap-1.5 transition-all text-[10px] font-bold ${
+              soundOn
+                ? 'bg-[#c40c24]/20 border-[#c40c24] text-white shadow-[0_0_12px_rgba(196,12,36,0.4)]'
+                : 'bg-white/5 border-white/20 text-white/50 hover:text-white'
+            }`}
+            title="Toggle Web Audio Sound Effects"
+          >
+            {soundOn ? <Volume2 className="w-3 h-3 text-[#c40c24]" /> : <VolumeX className="w-3 h-3" />}
+            <span>AUDIO FX: {soundOn ? 'ON' : 'OFF'}</span>
+          </button>
+
           <div className="flex items-center gap-1.5 text-[#c40c24]">
             <Sparkles className="w-3.5 h-3.5 animate-pulse" />
             <span className="font-bold">SUIT ENGAGED</span>
           </div>
-          <div className="text-white/80">
+
+          <div className="text-white/80 hidden sm:block">
             &odot; GUJARAT, IN (UTC+5:30)
           </div>
         </div>
@@ -96,6 +127,7 @@ export const SpiderHero: React.FC<SpiderHeroProps> = ({ siteContent }) => {
           {/* Primary Chamfered Dark Suit Red CTA */}
           <a
             href="#multiverse-work"
+            onClick={() => playThwipSound()}
             data-web-hover="true"
             className="relative p-[2px] bg-gradient-to-b from-[#c40c24] to-[#60000e] [clip-path:polygon(14px_0,100%_0,100%_calc(100%-14px),calc(100%-14px)_100%,0_100%,0_14px)] shadow-[0_10px_30px_rgba(196,12,36,0.6)] active:scale-95 transition-transform inline-block"
           >
@@ -108,6 +140,7 @@ export const SpiderHero: React.FC<SpiderHeroProps> = ({ siteContent }) => {
           {/* Secondary White Chamfered CTA */}
           <a
             href="#spider-contact"
+            onClick={() => playThwipSound()}
             data-web-hover="true"
             className="relative p-[2px] bg-gradient-to-b from-white to-white/40 [clip-path:polygon(14px_0,100%_0,100%_calc(100%-14px),calc(100%-14px)_100%,0_100%,0_14px)] shadow-[0_8px_25px_rgba(255,255,255,0.2)] active:scale-95 transition-transform inline-block"
           >

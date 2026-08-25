@@ -1,51 +1,55 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
+import { playThwipSound, playWebStretchSound } from './spider-sound-effects';
 
 export const HangingSpiderman: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [speechText, setSpeechText] = useState<string | null>(null);
   const [swayAngle, setSwayAngle] = useState(0);
-  
-  const startDragX = useRef(0);
-  const startDragY = useRef(0);
 
-  // 2D Motion values for omnidirectional free stretching (X and Y anywhere)
+  // 2D Cartesian displacement coordinates (X and Y)
   const dragX = useMotionValue(0);
   const dragY = useMotionValue(0);
 
-  // Natural high-performance 2D spring physics for smooth elastic snap-back & recoil
-  const springX = useSpring(dragX, {
-    stiffness: 460,
-    damping: 17,
-    mass: 0.8,
-  });
+  // Responsive base height anchor
+  const [baseHeight, setBaseHeight] = useState(130);
 
-  const springY = useSpring(dragY, {
-    stiffness: 460,
-    damping: 17,
-    mass: 0.8,
-  });
-
-  // Base resting height of braided web from navbar anchor
-  const baseHeight = 75;
-
-  // Gentle ambient resting pendulum sway
   useEffect(() => {
-    let t = 0;
-    let animId: number;
-    const animate = () => {
-      t += 0.022;
-      setSwayAngle(Math.sin(t) * 3.2);
-      animId = requestAnimationFrame(animate);
+    const updateSize = () => {
+      setBaseHeight(window.innerWidth < 640 ? 100 : 130);
     };
-    animId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animId);
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
   }, []);
 
-  // Dynamic 2D braided web rope length via Pythagorean distance
+  // Highly responsive physics springs with natural oscillation
+  const springX = useSpring(dragX, { stiffness: 320, damping: 14, mass: 0.8 });
+  const springY = useSpring(dragY, { stiffness: 320, damping: 14, mass: 0.8 });
+
+  // Ambient pendular wind swaying when not interacting
+  useEffect(() => {
+    let animId: number;
+    let time = 0;
+    const animateSway = () => {
+      if (!isDragging) {
+        time += 0.035;
+        setSwayAngle(Math.sin(time) * 3.5);
+      }
+      animId = requestAnimationFrame(animateSway);
+    };
+    animId = requestAnimationFrame(animateSway);
+    return () => cancelAnimationFrame(animId);
+  }, [isDragging]);
+
+  const startDragX = useRef(0);
+  const startDragY = useRef(0);
+  const lastSoundTime = useRef(0);
+
+  // Dynamic 2D distance calculation (Pythagorean theorem)
   const webHeight = useTransform([springX, springY], ([x, y]: number[]) => {
     return Math.max(35, Math.hypot(x || 0, (y || 0) + baseHeight));
   });
@@ -64,6 +68,7 @@ export const HangingSpiderman: React.FC = () => {
     startDragX.current = e.clientX - dragX.get();
     startDragY.current = e.clientY - dragY.get();
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    playWebStretchSound(0.2);
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
@@ -73,6 +78,13 @@ export const HangingSpiderman: React.FC = () => {
     const newY = Math.max(-45, Math.min(650, e.clientY - startDragY.current));
     dragX.set(newX);
     dragY.set(newY);
+
+    const now = Date.now();
+    if (now - lastSoundTime.current > 120) {
+      const tension = Math.min(1, Math.hypot(newX, newY) / 300);
+      playWebStretchSound(tension);
+      lastSoundTime.current = now;
+    }
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
@@ -87,6 +99,7 @@ export const HangingSpiderman: React.FC = () => {
     dragY.set(0);
 
     if (releasedDistance > 45) {
+      playThwipSound();
       const snapQuotes = [
         'THWIP! SNAP BACK! 🕸️',
         'WOAAAH! What a recoil!',
@@ -106,6 +119,7 @@ export const HangingSpiderman: React.FC = () => {
 
   const handleSpideyClick = () => {
     if (isDragging) return;
+    playThwipSound();
     const quotes = [
       'THWIP! 🕸️',
       'Hey there, fellow web-slinger!',
@@ -161,47 +175,47 @@ export const HangingSpiderman: React.FC = () => {
 
         {/* 
           2. SPIDER-MAN BODY (Holding the braided rope with his hands)
+          Equipped with glowing animated spider-sense indicators
         */}
-        <div className="relative w-16 h-28 sm:w-24 sm:h-36 -mt-1 sm:-mt-2 group">
+        <div className="relative -mt-2 flex flex-col items-center group">
           
-          {/* Speech Bubble on click / snap */}
+          {/* Floating Speech / Comic Thought Bubble */}
           <AnimatePresence>
             {speechText && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.8, y: -10 }}
+                initial={{ opacity: 0, scale: 0.8, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.8, y: -10 }}
-                className="absolute top-full mt-2 sm:mt-3 left-1/2 -translate-x-1/2 w-36 sm:w-48 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-[#0a0a0c]/95 backdrop-blur-md border border-[#c40c24] rounded-lg shadow-[0_0_25px_rgba(196,12,36,0.7)] font-mono text-[9px] sm:text-[10px] text-white text-center uppercase tracking-wider z-50 pointer-events-none"
+                exit={{ opacity: 0, scale: 0.8, y: 10 }}
+                className="absolute -top-12 right-full mr-3 whitespace-nowrap bg-white text-black font-black text-[11px] px-3.5 py-1.5 rounded-2xl border-2 border-black shadow-[0_8px_25px_rgba(0,0,0,0.85)] z-50 font-sans tracking-wide uppercase pointer-events-none"
               >
-                <div className="text-[#c40c24] font-black pb-0.5">SPIDEY:</div>
-                <div className="font-bold">{speechText}</div>
-                <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#0a0a0c] border-t border-l border-[#c40c24] rotate-45" />
+                {speechText}
+                {/* Speech Bubble Arrow */}
+                <div className="absolute top-1/2 -right-2 -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[8px] border-l-black" />
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Character Cutout Graphic */}
-          <div className="w-full h-full relative pointer-events-none select-none">
+          {/* Upside Down Spider-Man Character Asset */}
+          <div className="relative w-24 sm:w-28 h-32 sm:h-36 drop-shadow-[0_15px_30px_rgba(0,0,0,0.9)] transition-transform duration-150">
             <Image
-              src="/images/spiderman-body.png"
+              src="/images/hanging-spiderman.png"
               alt="Upside Down Hanging Spider-Man"
               fill
+              sizes="(max-width: 640px) 96px, 112px"
               priority
-              draggable={false}
-              sizes="(max-width: 640px) 64px, 96px"
-              className="object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.95)] drop-shadow-[0_0_20px_rgba(196,12,36,0.5)] pointer-events-none select-none"
+              className="object-contain"
             />
           </div>
 
-          {/* Subtle Hover Hint */}
-          {!isDragging && !speechText && (
-            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[8px] sm:text-[9px] text-white font-bold whitespace-nowrap bg-black/85 px-2 py-0.5 rounded border border-[#c40c24]/50 pointer-events-none shadow-md">
-              &harr; STRETCH ANYWHERE &varr;
-            </div>
+          {/* Subtle Spider-Sense Glow when dragged */}
+          {isDragging && (
+            <div className="absolute inset-0 bg-[#c40c24]/20 rounded-full blur-xl animate-ping pointer-events-none" />
           )}
+
         </div>
 
       </motion.div>
+
     </div>
   );
 };

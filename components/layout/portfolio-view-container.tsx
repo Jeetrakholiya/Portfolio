@@ -17,6 +17,7 @@ import { CertificationsSection } from '@/components/certifications/certification
 import { ContactSection } from '@/components/contact/contact-section';
 import { Footer } from '@/components/layout/footer';
 import { CustomCursor } from '@/components/ui/custom-cursor';
+import { InteractiveTerminalDrawer } from '@/components/syntax/interactive-terminal-drawer';
 
 // Spider-Tech / Spider-Verse Sci-Fi Interface
 import { SpiderView } from '@/components/spider-tech/spider-view';
@@ -59,6 +60,7 @@ export const PortfolioViewContainer: React.FC<PortfolioViewContainerProps> = ({ 
             className="w-full flex flex-col bg-[#09090b] text-[#f2f2f0] selection:bg-[#00f59b] selection:text-[#09090b]"
           >
             <CustomCursor />
+            <InteractiveTerminalDrawer siteContent={syntaxProfile.site} projects={syntaxProfile.projects} />
             <HeroSection siteContent={syntaxProfile.site} />
             <InfiniteMarquee />
             <SelectedWorkSection projects={syntaxProfile.projects} />
